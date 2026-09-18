@@ -1,19 +1,20 @@
-# Travel SOS Mesh — 48-Hour Hackathon Pre-Qualification Sprint
+# Travel SOS Mesh — 3-Day Android-First Engineering Sprint (SC-03)
 
 **Project:** Travel SOS Mesh  
 **Product:** Late-Night Journey Safety Companion  
 **Team:** Maravazha  
 **Members:** Vijaygovind Biju, Noel Paul Tomy  
 **Challenge:** SC-03 — Late-night journey safety companion  
+**Target Platform:** Physical Android Device (Flutter / Dart + Android Native)  
 
 ---
 
 ### Implementation Status Notation
-- `[IMPLEMENTED]`: Real, functional client-side execution in this web application (State machine, UI, SVG tactical map, Web Audio API sound synthesis, event loggers, demo timers).
-- `[SIMULATED]`: High-fidelity interactive prototype models (BLE advertisement packets, multi-sensor IMU/audio fusion, peer discovery, 5G gateway uplink, responder dispatch).
-- `[PLANNED / FUTURE]`: Production engineering roadmaps (Native Android `SensorManager` service, BLE 5.2 C++ stack, WebSocket backend server, certified PSAP integration).
+- `[REAL]`: Direct on-device hardware execution (Android GPS/Location, 3-Axis Accelerometer, Gyroscope, Battery status, Network connectivity detection, Local persistent storage).
+- `[SIMULATED]`: High-fidelity mathematical and interactive models running on phone (BLE 5.2 multi-hop store-and-forward relay packets, peer discovery, 5G gateway uplink, responder command dispatch, emergency SMS).
+- `[PLANNED]`: Future production hardening (Certified PSAP emergency gateway integration, native C++ BLE mesh background daemon, AWS GovCloud encrypted storage).
 
-### Status Legend
+### Task Status Legend
 - `[ ]` NOT STARTED
 - `[~]` IN PROGRESS
 - `[x]` COMPLETED
@@ -21,208 +22,201 @@
 
 ---
 
-## Phase 1 — Audit the Current Project
-- [x] Inspect complete repository
-- [x] Inspect package.json
-- [x] Inspect src structure
-- [x] Inspect all screens
-- [x] Inspect state management
-- [x] Inspect demo controller
-- [x] Inspect mesh visualization
-- [x] Inspect responder dashboard
-- [x] Inspect deployment configuration
-- [x] Run development build
-- [x] Run production build
-- [x] Identify errors
-- [x] Identify broken flows
-- [x] Identify duplicate code
-- [x] Identify obvious UI issues
-- [x] Identify misleading technical claims
-- [x] Update TODO.md
+## 📱 Phase 1 — Android Application Foundation
+- [x] Flutter Android project initialized (`com.maravazha.travel_sos_mesh`) `[REAL]`
+- [x] Android package / application ID configured with `minSdk = 23` `[REAL]`
+- [x] Hardware & network Android permissions declared in `AndroidManifest.xml` (`ACCESS_FINE_LOCATION`, `RECORD_AUDIO`, `INTERNET`, `BLUETOOTH_SCAN`, etc.) `[REAL]`
+- [x] Dark safety theme (`AppTheme.darkTheme`) and high-contrast color palette (`AppColors`) `[REAL]`
+- [x] Core data models (`LocationPoint`, `Journey`, `RiskFusionScore`, `Incident`, `SOSMessage`, `MeshNode`) `[REAL]`
+- [x] State management architecture (`SafetyProvider` with `ChangeNotifierProvider`) `[REAL]`
+- [x] Persistent offline storage service (`SharedPreferences` with JSON serialization) `[REAL]`
+- [x] Primary screens implemented:
+  - [x] `HomeScreen`: Status summary cards, journey trigger, demo launcher `[REAL]`
+  - [x] `JourneyScreen`: Destination setup + real OpenStreetMap view (`flutter_map`) with offline fallback `[REAL]`
+  - [x] `SafetyScreen`: Real-time hardware telemetry display, risk breakdown, 10s challenge modal, radial hold-for-SOS button `[REAL]`
+  - [x] `IncidentsScreen`: Offline SOS storage queue & immutable event timeline `[REAL]`
+  - [x] `ResponderScreen`: Response Center Command Console (#04) with GPS, ACK, Dispatch, Resolve, and SMS preview `[REAL/SIMULATED]`
+  - [x] `SettingsScreen`: Sensor monitoring toggles, challenge duration, risk thresholds, privacy architecture `[REAL]`
+  - [x] `MeshScreen`: 5-node store-and-forward interactive relay visualizer `[SIMULATED]`
+- [x] Navigation bar architecture (`MainNavigationScreen` with Material 3 `NavigationBar` & quick action bar) `[REAL]`
+- [x] Zero analyzer issues (`flutter analyze` clean) `[REAL]`
+- [x] Android debug APK build compilation verification `[REAL]`
 
-## Phase 2 — Core User Journey Verification
-- [x] Verify full sequential flow:
-  - HOME → START JOURNEY → JOURNEY ACTIVE → DANGER DETECTED → SAFETY CONFIRMATION → SOS CREATED → MESH RELAY → GATEWAY → BACKEND → RESPONDER → ACKNOWLEDGED
-- [x] Home works
-- [x] Start Journey works
-- [x] Destination selection works
-- [x] Trusted contact works
-- [x] Active Journey works
-- [x] Network toggle works
-- [x] Monitoring indicators work
-- [x] Danger simulation works
-- [x] Risk score works
-- [x] Safety countdown works
-- [x] I'M SAFE works
-- [x] SEND SOS works
-- [x] Automatic SOS works
-- [x] Mesh visualization works
-- [x] Responder dashboard works
-- [x] Acknowledge works
-- [x] Timeline updates correctly
+---
 
-## Phase 3 — Make the Product Feel Real
-- [x] Typography & font hierarchy
-- [x] Spacing & padding consistency
-- [x] Visual hierarchy & contrast
-- [x] Navigation & screen breadcrumb indicators
-- [x] Loading & transition states
-- [x] Empty states
-- [x] Error states & input guards
-- [x] Status indicators (pulsing, radar, alerts)
-- [x] Mobile responsiveness (<640px)
-- [x] Desktop responsiveness (>1024px)
-- [x] Accessibility & contrast compliance
-- [x] Button states (hover, active, disabled)
-- [x] Emergency visual states & border glows
-- [x] Clean subtle animations (eliminate generic SaaS aesthetics)
+## 🚀 Phase 2 — Onboarding & Dynamic Permissions
+- [ ] Onboarding flow explaining Journey Monitoring, Safety Detection, Offline SOS, and Mesh Relay `[PLANNED]`
+- [ ] Dynamic runtime permission requests (Location, Microphone, Notifications, Bluetooth) `[PLANNED]`
+- [ ] Permission state UI (Granted, Denied, Permanently Denied with recovery guide) `[PLANNED]`
 
-## Phase 4 — Home Screen (Immediate 5-Second Understanding)
-- [x] Header banner: "Travel SOS Mesh — Safety that works beyond the network"
-- [x] Core cards: Journey Status, Network Status, Safety Monitoring, Nearby Relay Devices
-- [x] Primary CTA: [ START JOURNEY ]
-- [x] Secondary CTA: [ RUN FULL SOS DEMO ]
-- [x] 5-second explainer callout: "If your phone loses Internet connectivity, nearby participating devices can relay an emergency message toward an Internet-connected gateway."
-- [x] Explicit label: "Prototype & Architectural Demonstration"
+## 🏠 Phase 3 — Home Dashboard & Quick Access
+- [ ] Header banner & product mission tagline `[PLANNED]`
+- [ ] Dynamic status cards (Active journey, Network state, Battery, Nearby peers) `[PLANNED]`
+- [ ] Primary CTAs (Start Journey, Full Demo, Emergency SOS) `[PLANNED]`
+- [ ] Mesh relay explainer callout `[PLANNED]`
 
-## Phase 5 — Active Journey Screen
-- [x] Destination display
-- [x] Real-time journey duration timer
-- [x] Network state indicator with prominent OFFLINE mode
-- [x] Clear callout when offline: "Internet unavailable — Mesh relay active"
-- [x] Battery level (78%)
-- [x] GPS coordinates & landmark
-- [x] Monitoring indicators: Audio, Motion, Location
-- [x] Nearby relay device counter (2 peers discovered)
-- [x] Radial progress HOLD FOR SOS button
-- [x] "Simulate Dangerous Event" button
+## 🗺️ Phase 4 — Journey Setup & Preferences
+- [ ] Destination & journey naming form `[PLANNED]`
+- [ ] Trusted emergency contact inputs `[PLANNED]`
+- [ ] Sensor monitoring preference toggles (Audio, Motion, Location) `[PLANNED]`
+- [ ] Unique journey ID generation and local persistence `[PLANNED]`
 
-## Phase 6 — Multi-Sensor Risk Fusion Presentation
-- [x] Multi-signal breakdown:
-  - Impact / Rapid Deceleration (+40)
-  - Acoustic Anomaly (+25)
-  - Sudden Rotation (+20)
-  - Late-Night Context (+10)
-- [x] Total: 95 / 100 (HIGH RISK)
-- [x] Confidence score & contribution indicators
-- [x] Explicit label: "DEMO / SIMULATED SENSOR INPUT"
+## 📍 Phase 5 — Real Map & Offline Fallback
+- [ ] OpenStreetMap (`flutter_map`) real-device rendering `[REAL]`
+- [ ] Real GPS coordinate pinpointing & accuracy radius circle `[REAL]`
+- [ ] Journey breadcrumb trail rendering `[REAL]`
+- [ ] Graceful offline tile cache fallback (Zero-network resilient) `[REAL]`
 
-## Phase 7 — Safety Confirmation (False-Positive Guard)
-- [x] High alert header: "⚠ POSSIBLE DANGER DETECTED"
-- [x] Question: "Are you safe?"
-- [x] 10-second countdown with visual ring & auditory tick
-- [x] [ I'M SAFE ] button (aborts alert, logs false-positive protection)
-- [x] [ SEND SOS NOW ] button (immediate bypass)
-- [x] Automatic SOS trigger upon countdown reaching 0
-- [x] Visual explanation of false-positive reduction mechanism
+## 🛰️ Phase 6 — Real Location Tracking System
+- [ ] Real device GPS geolocator integration (`geolocator`) `[REAL]`
+- [ ] Latitude, Longitude, Altitude, Accuracy, Timestamp, Speed `[REAL]`
+- [ ] Adaptive sampling rate (Battery-saving in transit, High-frequency in SOS) `[REAL]`
+- [ ] Location failure and timeout guards `[REAL]`
 
-## Phase 8 — SOS Payload & Security Representation
-- [x] Incident ID & Journey ID
-- [x] Microsecond timestamp & GPS coordinates
-- [x] Battery level & incident type
-- [x] TTL (300s) & hop counter (0 / 5)
-- [x] Status progression pipeline
-- [x] Accurate labeling: "Prototype payload & encryption simulation"
-- [x] Explanation of proposed AES-GCM-256 envelope architecture
+## 📳 Phase 7 — Real Accelerometer & Impact Detection
+- [ ] 3-axis accelerometer stream (`sensors_plus`) `[REAL]`
+- [ ] Vector magnitude computation: `sqrt(x² + y² + z²)` `[REAL]`
+- [ ] Sudden deceleration & violent impact candidate thresholding (`>= 3.8G`) `[REAL]`
+- [ ] Real-time magnitude & peak G tracking readout `[REAL]`
 
-## Phase 9 — Interactive Mesh Relay Visualization
-- [x] Visual centerpiece diagram with 5 nodes:
-  - Node A: Traveller (NO INTERNET)
-  - Node B: Relay Device (Nearby Commuter)
-  - Node C: Internet Gateway (5G Pedestrian)
-  - Node D: SOS Backend (Cloud Ingest)
-  - Node E: Responder (Emergency Console)
-- [x] Animated packet propagation along connection vectors
-- [x] Display fields: Message ID, Hop count, TTL, Node status, Connection status
-- [x] Hop stepping controls (Auto Play Hops, Step Next Hop)
+## 🔄 Phase 8 — Real Gyroscope & Tumbling Detection
+- [ ] 3-axis gyroscope stream (`sensors_plus`) `[REAL]`
+- [ ] Rotational velocity calculation in °/s `[REAL]`
+- [ ] Rollover and abnormal tumbling motion candidate thresholding (`>= 80°/s`) `[REAL]`
+- [ ] Live rotational telemetry readout `[REAL]`
 
-## Phase 10 — Mesh Protocol Explanation Panel
-- [x] Store-and-Forward technical details panel
-- [x] Conceptual steps:
-  1. Receives message
-  2. Validates message & signature
-  3. Checks deduplication cache
-  4. Decrements TTL
-  5. Forwards message
-  6. Records delivery state
-- [x] Conceptual packet schema: message_id, origin_id, current_node, hop_count, ttl, timestamp, payload, signature
+## 🎙️ Phase 9 — Real Microphone & Acoustic Anomaly Detection
+- [ ] Local audio window sampling via Android microphone `[REAL]`
+- [ ] RMS amplitude calculation and dB level analysis `[REAL]`
+- [ ] Acoustic spike classification (Normal, Elevated, Anomaly) `[REAL]`
+- [ ] Zero raw audio recording or transmission guarantee `[REAL]`
 
-## Phase 11 — Responder Dashboard (Command Console)
-- [x] Safety Response Center interface (Console #04)
-- [x] Active incident card with severity HIGH
-- [x] Location, Time, Journey ID, Network route (2 hops)
-- [x] Real-time audit timeline
-- [x] Dispatch action: [ ACKNOWLEDGE ], [ DISPATCH UNITS ], [ RESOLVE ]
-- [x] Simulated Trusted Contact emergency SMS preview
+## 🧠 Phase 10 — Multi-Sensor Risk Fusion Engine
+- [ ] Multi-signal scoring logic (+40 Impact, +25 Audio, +20 Rotation, +10 Context) `[REAL]`
+- [ ] Dynamic risk evaluation and score generation (0–100) `[REAL]`
+- [ ] False-positive damping (prevent single-sensor false alarms) `[REAL]`
+- [ ] Risk level categorization (LOW, MEDIUM, HIGH) `[REAL]`
 
-## Phase 12 — Full Demo Mode Enhancement
-- [x] [ RUN FULL SOS DEMO ] automated sequence (30–60s target)
-- [x] Sequential stages with visual judge narration:
-  - 00s: Journey active
-  - 05s: Network lost (OFFLINE)
-  - 10s: Monitoring detects anomaly
-  - 15s: Risk becomes HIGH (95/100)
-  - 20s: Safety confirmation countdown
-  - 25s: No response
-  - 28s: SOS created
-  - 32s: Relay discovered
-  - 36s: Gateway discovered
-  - 40s: Backend receives SOS
-  - 45s: Responder notified
-  - 50s: Incident acknowledged
-- [x] Visible progress indicator and control bar
+## ⏱️ Phase 11 — Safety Confirmation Challenge (False-Alarm Guard)
+- [ ] High alert emergency modal (`⚠ POSSIBLE DANGER DETECTED`) `[REAL]`
+- [ ] 10-second auditory & visual countdown timer `[REAL]`
+- [ ] [ I'M SAFE ] dismissal button (logs false-positive protection) `[REAL]`
+- [ ] [ SEND SOS NOW ] immediate override button `[REAL]`
+- [ ] Automatic SOS creation on timeout (Zero-user-interaction safety) `[REAL]`
 
-## Phase 13 — Demo Reset
-- [x] [ RESET DEMO ] single-click clean state restore
-- [x] Reset journey, incident, mesh nodes, timeline, risk, countdown, and responder console
-- [x] Verified repeatable multiple times without page refresh
+## 🔘 Phase 12 — Manual Emergency SOS Button
+- [ ] Radial progress hold-for-SOS button (1.5s press guard) `[REAL]`
+- [ ] Instant snapshot: GPS, Battery, Sensor peaks, Journey ID `[REAL]`
+- [ ] Immediate offline queue dispatch `[REAL]`
 
-## Phase 14 — Technical Credibility Audit
-- [x] Audit all claims across UI and code
-- [x] Clearly label all simulated features (IMU sensor readings, BLE packet broadcast, Wi-Fi Aware, AWS ingest, SMS gateway, Police dispatch)
-- [x] Replace overstatements with accurate architectural proposals
-- [x] Ensure credibility before judges
+## 💾 Phase 13 — Offline-First Persistent Storage
+- [ ] Persistent local SOS queue (`SharedPreferences` / SQLite) `[REAL]`
+- [ ] Structured SOS payload persistence across app reboots `[REAL]`
+- [ ] Message lifecycle tracking (`CREATED`, `QUEUED`, `RELAY_PENDING`, `UPLOADING`, `DELIVERED`) `[REAL]`
 
-## Phase 15 — Architecture Page & Whitepaper Panel
-- [x] Architecture modal with 6 clean layers:
-  1. Traveller Device (Local detection)
-  2. Sensor / Risk Fusion Engine (On-device privacy)
-  3. Safety Confirmation (False-positive guard)
-  4. SOS Message & Mesh Relay (Offline-first Store-and-Forward)
-  5. Internet Gateway & Cloud Backend
-  6. Responder Console
-- [x] Understandable to both technical and non-technical judges
+## 📶 Phase 14 — Real Network Connectivity Detection
+- [ ] Real cellular & Wi-Fi state listener (`connectivity_plus`) `[REAL]`
+- [ ] Live ONLINE / OFFLINE mode display `[REAL]`
+- [ ] Simulation toggle for testing zero-reception dead-zones `[REAL]`
+- [ ] Automatic SOS queue flushing upon network recovery `[REAL]`
 
-## Phase 16 — Privacy & Ethical Safeguards Section
-- [x] Privacy section covering:
-  - On-device local processing
-  - Minimal location precision
-  - Zero raw audio recording/uploading
-  - Emergency data broadcast only when SOS is triggered
-  - Relay participation is opt-in and zero-knowledge
-  - Packets auto-expire via TTL (Time-To-Live)
+## 🌐 Phase 15 — Lightweight Cloud SOS Backend
+- [ ] Lightweight REST / WebSocket backend (FastAPI / Node.js) `[PLANNED]`
+- [ ] Endpoints: `/api/journeys`, `/api/incidents`, `/api/incidents/:id/acknowledge` `[PLANNED]`
+- [ ] Incident ingestion, decryption verification, and dispatch tracking `[PLANNED]`
 
-## Phase 17 — README Rewrite
-- [x] Rewrite README.md for hackathon judges
-- [x] Project summary, problem, solution, core innovation
-- [x] Clear distinction between IMPLEMENTED vs SIMULATED vs PLANNED
-- [x] Concise demo instructions (60-second quick run)
-- [x] Team members & challenge metadata
+## 🖥️ Phase 16 — Responder Command Console
+- [ ] Real-time incident alert stream `[REAL/SIMULATED]`
+- [ ] Incident telemetry display: GPS, Route history, Risk breakdown `[REAL/SIMULATED]`
+- [ ] Dispatch actions: [ ACKNOWLEDGE ], [ DISPATCH UNITS ], [ RESOLVE ] `[REAL/SIMULATED]`
 
-## Phase 18 — Production Build & Deployment Verification
-- [x] Production build succeeds (`npm run build`)
-- [x] Zero TypeScript errors
-- [x] Zero runtime console errors
-- [x] No localhost dependencies
-- [x] Verified preview server at http://localhost:4173/
+## 👥 Phase 17 — Trusted Contact Management & SMS Alerts
+- [ ] Trusted emergency contact configuration `[REAL]`
+- [ ] SMS payload generation with live GPS tracking URL `[REAL]`
+- [ ] Automated dispatch trigger upon SOS confirmation `[SIMULATED]`
 
-## Phase 19 — Hackathon Presentation Support (/docs)
-- [x] Create `/docs/architecture.md`
-- [x] Create `/docs/demo-script.md` (60-second verbal walkthrough)
-- [x] Create `/docs/technical-overview.md`
+## 📜 Phase 18 — Immutable Incident Timeline
+- [ ] Sequential event audit log with millisecond timestamps `[REAL]`
+- [ ] Critical state tracking (Detection, Challenge, SOS Created, Mesh Hop, Gateway, Ack) `[REAL]`
 
-## Phase 20 — Final Verification & Commit
-- [x] Full end-to-end user journey test
-- [x] Full automated demo test
-- [x] Reset test
-- [x] Git clean status & final commit
+## 📦 Phase 19 — Store-and-Forward Mesh Protocol
+- [ ] Standardized SOS PDU schema: `messageId`, `originDeviceId`, `currentNodeId`, `hopCount`, `ttl`, `payload`, `signature` `[REAL]`
+- [ ] Deduplication cache and TTL expiration logic `[REAL]`
+- [ ] Multi-hop forwarding state machine `[REAL]`
+
+## 📡 Phase 20 — Real Android BLE Broadcast Layer
+- [ ] Native Android BLE Advertising & Scanning (`flutter_blue_plus` / Android Kotlin) `[PLANNED]`
+- [ ] Encrypted 31-byte SOS beacon broadcast `[PLANNED]`
+- [ ] Peer receiver & forwarder validation `[PLANNED]`
+- [ ] Honest labeling: Physical BLE beacon vs Multi-hop simulation fallback `[REAL]`
+
+## 📊 Phase 21 — Interactive Mesh Relay Visualizer
+- [ ] 5-node visual topology (Traveller → Relay B → Gateway C → Backend → Responder) `[REAL/SIMULATED]`
+- [ ] Step-by-step packet advancement and node state inspection `[REAL/SIMULATED]`
+
+## ⚙️ Phase 22 — Android Background Foreground Service
+- [ ] Persistent Android foreground notification `[PLANNED]`
+- [ ] Continuous GPS, Accelerometer, and SOS queue operation while screen off `[PLANNED]`
+
+## 🔔 Phase 23 — Local Android Notifications
+- [ ] Local Android notification channels (Normal, Emergency High-Priority) `[PLANNED]`
+- [ ] Audible alert upon dangerous event detection `[PLANNED]`
+
+## 🔋 Phase 24 — Battery Optimization & Management
+- [ ] Real device battery level tracking (`battery_plus`) `[REAL]`
+- [ ] Adaptive sensor throttling based on risk level and battery percentage `[REAL]`
+
+## ⚙️ Phase 25 — Safety Settings & Customization
+- [ ] Monitoring toggles, countdown duration, risk threshold adjustment `[REAL]`
+- [ ] Opt-in mesh relay participation toggle `[REAL]`
+
+## 🛡️ Phase 26 — Privacy & Ethical Safeguards
+- [ ] On-device sensor processing architecture documentation `[REAL]`
+- [ ] Zero raw audio transmission, ephemeral TTL-based data policy `[REAL]`
+
+## 🔐 Phase 27 — Practical Security Architecture
+- [ ] Unique device IDs, tamper-evident timeline logging `[REAL]`
+- [ ] AES-GCM-256 envelope and Ed25519 signature representation `[REAL/SIMULATED]`
+
+## 🚨 Phase 28 — Robust Failure Handling
+- [ ] Graceful degradation for GPS denial, sensor failure, or zero network `[REAL]`
+- [ ] App restart recovery with persistent state `[REAL]`
+
+## 🎬 Phase 29 — Automated 50-Second Demonstration Engine
+- [ ] Full end-to-end automated sequence (00s Journey to 50s Acknowledged) `[REAL/SIMULATED]`
+- [ ] Single-click [ RESET DEMO ] clean restore `[REAL]`
+
+## 🗺️ Phase 30 — Map + Incident Visualization on Responder Console
+- [ ] OpenStreetMap display with incident vector on responder dashboard `[REAL]`
+
+## 🧭 Phase 31 — Native Android Bottom Navigation & Layout
+- [ ] Material 3 NavigationBar with badges for active journey, danger, and pending SOS `[REAL]`
+- [ ] Persistent emergency SOS button access `[REAL]`
+
+## 🎨 Phase 32 — Safety UI/UX Polish
+- [ ] Dark theme, high-contrast touch targets, typography hierarchy `[REAL]`
+
+## 📱 Phase 33 — Real-Phone Demo Scenario Preparation
+- [ ] Verification script on physical Android phone (Sensors, GPS, Dead-Zone, Recovery) `[PLANNED]`
+
+## 📚 Phase 34 — Technical Documentation & Guides
+- [ ] Comprehensive README update with Android installation instructions `[PLANNED]`
+- [ ] Technical architecture & demo script docs `[PLANNED]`
+
+## 🧪 Phase 35 — Comprehensive Testing
+- [ ] Unit & widget smoke tests `[REAL]`
+- [ ] Hardware sensor integration tests on physical Android device `[PLANNED]`
+
+## 📦 Phase 36 — Build & Deployment
+- [ ] Production debug & release APK builds `[REAL]`
+- [ ] Backend & Responder deployment `[PLANNED]`
+
+---
+
+### Phase 1 Audit Summary (Completed)
+- **Codebase:** Flutter 3.44.8 / Dart 3.12.2 / Android Gradle Plugin / Android SDK 36.
+- **Application ID:** `com.maravazha.travel_sos_mesh`
+- **Permissions:** Real fine/coarse GPS, record audio, Bluetooth admin/scan/advertise, wake lock, foreground service.
+- **Screens:** 6 complete screens (Home, Journey, Safety, Incidents, Responder, Settings) + Mesh visualizer.
+- **State & Storage:** `SafetyProvider` + `StorageService` (SharedPreferences) + `NetworkService` + `SensorService` + `LocationService`.
+- **Static Analysis:** `flutter analyze` passed with 0 errors, 0 warnings.
