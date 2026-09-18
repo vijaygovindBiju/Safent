@@ -336,7 +336,7 @@ class ResponderScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Red: Distress Location • Green: Ambulance 108 • Cyan: Police #04',
+            'Red: Distress Location • Green: Ambulance 108 • Cyan: Police #04 • © OpenStreetMap contributors',
             style: TextStyle(fontSize: 10, color: AppColors.textMuted),
           ),
           const SizedBox(height: 14),

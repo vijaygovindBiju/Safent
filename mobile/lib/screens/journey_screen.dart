@@ -645,6 +645,22 @@ class _JourneyScreenState extends State<JourneyScreen> {
                   ],
                 ),
               ),
+              // OpenStreetMap Attribution (Step 19)
+              Positioned(
+                bottom: 6,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.background.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '© OpenStreetMap contributors',
+                    style: TextStyle(fontSize: 8, color: AppColors.textMuted),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

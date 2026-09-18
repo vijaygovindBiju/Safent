@@ -12,8 +12,8 @@
  * - /api/mesh/relay
  */
 
-const http = require('http');
-const url = require('url');
+import http from 'http';
+import url from 'url';
 
 const PORT = process.env.PORT || 3000;
 
