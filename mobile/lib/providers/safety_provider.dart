@@ -81,8 +81,30 @@ class SafetyProvider extends ChangeNotifier {
     // Listen for network recovery to auto-flush pending SOS
     network.addListener(_onNetworkChanged);
     sensors.addListener(_onSensorChanged);
+    location.addListener(_onLocationChanged);
 
     notifyListeners();
+  }
+
+  void _onLocationChanged() {
+    if (_activeJourney != null && _activeJourney!.status == 'ACTIVE') {
+      final cur = location.currentLocation;
+      _activeJourney!.location = cur;
+
+      // Add to breadcrumb if empty or moved >= 5 meters
+      if (_activeJourney!.breadcrumbs.isEmpty) {
+        _activeJourney!.breadcrumbs.add(cur);
+      } else {
+        final last = _activeJourney!.breadcrumbs.last;
+        final dLat = (cur.latitude - last.latitude).abs();
+        final dLon = (cur.longitude - last.longitude).abs();
+        if (dLat > 0.00005 || dLon > 0.00005) {
+          _activeJourney!.breadcrumbs.add(cur);
+          _storage.saveActiveJourney(_activeJourney);
+        }
+      }
+      notifyListeners();
+    }
   }
 
   void _onNetworkChanged() {
@@ -549,6 +571,7 @@ class SafetyProvider extends ChangeNotifier {
     stopDemo();
     network.removeListener(_onNetworkChanged);
     sensors.removeListener(_onSensorChanged);
+    location.removeListener(_onLocationChanged);
     super.dispose();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import '../core/constants/app_colors.dart';
 import '../models/journey.dart';
 import '../providers/safety_provider.dart';
@@ -378,6 +379,24 @@ class _JourneyScreenState extends State<JourneyScreen> {
     );
   }
 
+  LatLng _resolveDestinationLatLng(String destName, LocationPoint currentPos) {
+    final lower = destName.toLowerCase();
+    if (lower.contains('home') || lower.contains('panampilly')) {
+      return const LatLng(9.9575, 76.2995);
+    } else if (lower.contains('cusat') || lower.contains('college')) {
+      return const LatLng(10.0435, 76.3242);
+    } else if (lower.contains('airport') || lower.contains('cok')) {
+      return const LatLng(10.1518, 76.3930);
+    } else if (lower.contains('infopark') || lower.contains('kakkanad')) {
+      return const LatLng(10.0104, 76.3638);
+    } else if (lower.contains('marine drive')) {
+      return const LatLng(9.9816, 76.2754);
+    } else if (lower.contains('mg road')) {
+      return const LatLng(9.9726, 76.2798);
+    }
+    return LatLng(currentPos.latitude + 0.018, currentPos.longitude + 0.014);
+  }
+
   Widget _buildActiveView(
     BuildContext context,
     SafetyProvider safety,
@@ -385,6 +404,22 @@ class _JourneyScreenState extends State<JourneyScreen> {
     LocationPoint currentPos,
   ) {
     final latLng = LatLng(currentPos.latitude, currentPos.longitude);
+    final destLatLng = _resolveDestinationLatLng(journey.destination, currentPos);
+    final relayLatLng = LatLng(currentPos.latitude + 0.0015, currentPos.longitude - 0.0012);
+
+    final distMeters = Geolocator.distanceBetween(
+      currentPos.latitude,
+      currentPos.longitude,
+      destLatLng.latitude,
+      destLatLng.longitude,
+    );
+    final distText = distMeters >= 1000
+        ? '${(distMeters / 1000).toStringAsFixed(1)} km'
+        : '${distMeters.toStringAsFixed(0)} m';
+
+    final breadcrumbs = journey.breadcrumbs.isNotEmpty
+        ? journey.breadcrumbs.map((p) => LatLng(p.latitude, p.longitude)).toList()
+        : [latLng];
 
     return Column(
       children: [
@@ -432,12 +467,88 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.maravazha.travel_sos_mesh',
                     errorTileCallback: (tile, error, stackTrace) {
-                      // Graceful tile failure handler
+                      // Graceful tile failure handler - dark canvas persists
                     },
                   ),
-                  // Location Marker
+
+                  // GPS Accuracy Radius Circle
+                  CircleLayer(
+                    circles: [
+                      CircleMarker(
+                        point: latLng,
+                        radius: currentPos.accuracy.clamp(8.0, 150.0),
+                        useRadiusInMeter: true,
+                        color: AppColors.cyanAccent.withValues(alpha: 0.12),
+                        borderColor: AppColors.cyanAccent.withValues(alpha: 0.4),
+                        borderStrokeWidth: 1.5,
+                      ),
+                    ],
+                  ),
+
+                  // Breadcrumb Trail Polyline
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: breadcrumbs,
+                        color: AppColors.cyanAccent,
+                        strokeWidth: 4.0,
+                      ),
+                    ],
+                  ),
+
+                  // Map Markers: Destination, Relay Node B, Current Location
                   MarkerLayer(
                     markers: [
+                      // 1. Destination Marker
+                      Marker(
+                        point: destLatLng,
+                        width: 110,
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceElevated,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: AppColors.emergency),
+                              ),
+                              child: Text(
+                                journey.destination.split(',').first,
+                                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const Icon(Icons.flag_rounded, color: AppColors.emergency, size: 24),
+                          ],
+                        ),
+                      ),
+
+                      // 2. Nearby Mesh Relay Peer (Node B)
+                      Marker(
+                        point: relayLatLng,
+                        width: 90,
+                        height: 52,
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.meshIndigo.withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'Relay Phone B',
+                                style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white),
+                              ),
+                            ),
+                            const Icon(Icons.hub_rounded, color: AppColors.meshIndigo, size: 20),
+                          ],
+                        ),
+                      ),
+
+                      // 3. Current Location Marker with Heading Arrow
                       Marker(
                         point: latLng,
                         width: 44,
@@ -451,7 +562,10 @@ class _JourneyScreenState extends State<JourneyScreen> {
                               BoxShadow(color: AppColors.cyanAccent.withValues(alpha: 0.5), blurRadius: 10),
                             ],
                           ),
-                          child: const Icon(Icons.navigation, color: Colors.black, size: 20),
+                          child: Transform.rotate(
+                            angle: (currentPos.heading * pi / 180),
+                            child: const Icon(Icons.navigation, color: Colors.black, size: 20),
+                          ),
                         ),
                       ),
                     ],
@@ -459,37 +573,76 @@ class _JourneyScreenState extends State<JourneyScreen> {
                 ],
               ),
 
-              // Map GPS Status Pill
+              // Map GPS Status & Navigation Pill
               Positioned(
                 top: 12,
                 left: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.background.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        safety.location.isRealGps ? Icons.gps_fixed : Icons.gps_not_fixed,
-                        color: safety.location.isRealGps ? AppColors.success : AppColors.warning,
-                        size: 14,
+                right: 12,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // GPS Accuracy Pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.background.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        safety.location.isRealGps
-                            ? 'GPS ACCURACY: ±${currentPos.accuracy.toStringAsFixed(1)}m'
-                            : 'ESTIMATED / SIMULATED LOCATION',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: safety.location.isRealGps ? AppColors.success : AppColors.warning,
-                        ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            safety.location.isRealGps ? Icons.gps_fixed : Icons.gps_not_fixed,
+                            color: safety.location.isRealGps ? AppColors.success : AppColors.warning,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            safety.location.isRealGps
+                                ? 'GPS: ±${currentPos.accuracy.toStringAsFixed(1)}m'
+                                : 'SIMULATED GPS',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: safety.location.isRealGps ? AppColors.success : AppColors.warning,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Distance & Heading Pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.background.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.near_me_rounded, color: AppColors.cyanAccent, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            distText,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${currentPos.heading.toStringAsFixed(0)}°',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

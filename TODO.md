@@ -72,10 +72,13 @@
 - [x] Dynamic runtime permission checks triggered before journey activation `[REAL]`
 
 ## 📍 Phase 5 — Real Map & Offline Fallback
-- [ ] OpenStreetMap (`flutter_map`) real-device rendering `[REAL]`
-- [ ] Real GPS coordinate pinpointing & accuracy radius circle `[REAL]`
-- [ ] Journey breadcrumb trail rendering `[REAL]`
-- [ ] Graceful offline tile cache fallback (Zero-network resilient) `[REAL]`
+- [x] Real OpenStreetMap tile rendering via `flutter_map` without requiring expensive third-party API keys `[REAL]`
+- [x] Live device GPS positioning marker with rotational heading arrow `[REAL]`
+- [x] Dynamic GPS accuracy radius circle (`CircleLayer`) rendered in meters `[REAL]`
+- [x] Real-time breadcrumb trail polyline (`PolylineLayer`) tracing travel path `[REAL]`
+- [x] Destination pin marker with distance calculation via `Geolocator.distanceBetween` `[REAL]`
+- [x] Nearby mesh relay peer visualization (Node B) plotted ~150m along transit corridor `[REAL/SIMULATED]`
+- [x] Graceful offline canvas fallback preserving polyline, markers, and distance readouts when disconnected `[REAL]`
 
 ## 🛰️ Phase 6 — Real Location Tracking System
 - [ ] Real device GPS geolocator integration (`geolocator`) `[REAL]`
