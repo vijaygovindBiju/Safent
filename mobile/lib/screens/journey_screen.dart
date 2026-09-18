@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../core/constants/app_colors.dart';
+import '../models/journey.dart';
 import '../providers/safety_provider.dart';
 import '../services/permission_service.dart';
+import '../services/storage_service.dart';
 
 class JourneyScreen extends StatefulWidget {
   const JourneyScreen({super.key});
@@ -15,16 +17,35 @@ class JourneyScreen extends StatefulWidget {
 
 class _JourneyScreenState extends State<JourneyScreen> {
   final _destController = TextEditingController(text: 'MG Road Metro Station, Kochi');
+  final _journeyNameController = TextEditingController(text: 'Late-Night Transit Home');
   final _contactNameController = TextEditingController(text: 'Anjali Menon (Sister)');
   final _contactPhoneController = TextEditingController(text: '+91 98470 12345');
 
   bool _audio = true;
   bool _motion = true;
   bool _location = true;
+  int _expectedMinutes = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedContact();
+  }
+
+  Future<void> _loadSavedContact() async {
+    final contact = await StorageService().loadTrustedContact();
+    if (contact != null && mounted) {
+      setState(() {
+        _contactNameController.text = contact.name;
+        _contactPhoneController.text = contact.phone;
+      });
+    }
+  }
 
   @override
   void dispose() {
     _destController.dispose();
+    _journeyNameController.dispose();
     _contactNameController.dispose();
     _contactPhoneController.dispose();
     super.dispose();
@@ -69,8 +90,9 @@ class _JourneyScreenState extends State<JourneyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section 1: Journey Details
           const Text(
-            'ROUTE CONFIGURATION',
+            'JOURNEY IDENTIFICATION',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -78,13 +100,51 @@ class _JourneyScreenState extends State<JourneyScreen> {
               color: AppColors.textMuted,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Destination Input
+          TextField(
+            controller: _journeyNameController,
+            decoration: InputDecoration(
+              labelText: 'Journey Name',
+              prefixIcon: const Icon(Icons.drive_file_rename_outline, color: AppColors.cyanAccent),
+              filled: true,
+              fillColor: AppColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Wrap(
+            spacing: 8,
+            children: [
+              _journeyPresetChip('Transit Home', 'Late-Night Transit Home'),
+              _journeyPresetChip('Campus Commute', 'CUSAT Campus Shuttle'),
+              _journeyPresetChip('Night Cab', 'Ola/Uber Late Ride'),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          // Section 2: Destination
+          const Text(
+            'DESTINATION & ROUTE',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 10),
+
           TextField(
             controller: _destController,
             decoration: InputDecoration(
-              labelText: 'Destination',
+              labelText: 'Destination Landmark / Address',
               prefixIcon: const Icon(Icons.location_on_outlined, color: AppColors.cyanAccent),
               filled: true,
               fillColor: AppColors.surface,
@@ -95,20 +155,60 @@ class _JourneyScreenState extends State<JourneyScreen> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
-          // Quick Presets
           Wrap(
             spacing: 8,
+            runSpacing: 6,
             children: [
-              _presetChip('MG Road Metro', 'MG Road Metro Station, Kochi'),
-              _presetChip('Marine Drive', 'Marine Drive Walkway, Ernakulam'),
-              _presetChip('Kakkanad InfoPark', 'InfoPark Expressway, Kakkanad'),
+              _presetChip('Home (Panampilly)', 'Home (Panampilly Nagar, Kochi)'),
+              _presetChip('College (CUSAT)', 'CUSAT Campus, Kalamassery'),
+              _presetChip('Kochi (MG Road)', 'MG Road Metro Station, Kochi'),
+              _presetChip('Airport (COK)', 'Cochin International Airport (COK)'),
+              _presetChip('InfoPark', 'InfoPark Expressway, Kakkanad'),
             ],
           ),
 
           const SizedBox(height: 18),
 
+          // Section 3: Expected Arrival Time
+          const Text(
+            'EXPECTED ARRIVAL DURATION',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [15, 30, 45, 60].map((mins) {
+              final isSelected = _expectedMinutes == mins;
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ChoiceChip(
+                    label: Text('${mins}m'),
+                    selected: isSelected,
+                    selectedColor: AppColors.primary,
+                    backgroundColor: AppColors.surface,
+                    labelStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                    ),
+                    onSelected: (_) => setState(() => _expectedMinutes = mins),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 18),
+
+          // Section 4: Trusted Emergency Contact
           const Text(
             'EMERGENCY TRUSTED CONTACT',
             style: TextStyle(
@@ -118,7 +218,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
               color: AppColors.textMuted,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           TextField(
             controller: _contactNameController,
@@ -152,6 +252,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
 
           const SizedBox(height: 18),
 
+          // Section 5: Monitoring Sensors
           const Text(
             'ON-DEVICE MONITORING SENSORS',
             style: TextStyle(
@@ -163,32 +264,44 @@ class _JourneyScreenState extends State<JourneyScreen> {
           ),
           const SizedBox(height: 10),
 
-          SwitchListTile(
-            title: const Text('Audio Anomaly Detection', style: TextStyle(fontSize: 14)),
-            subtitle: const Text('Local acoustic scream & shatter evaluation', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            value: _audio,
-            activeThumbColor: AppColors.cyanAccent,
-            onChanged: (val) => setState(() => _audio = val),
-          ),
-
-          SwitchListTile(
-            title: const Text('Motion / Impact Detection', style: TextStyle(fontSize: 14)),
-            subtitle: const Text('3-axis Accelerometer & Gyroscope monitoring', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            value: _motion,
-            activeThumbColor: AppColors.cyanAccent,
-            onChanged: (val) => setState(() => _motion = val),
-          ),
-
-          SwitchListTile(
-            title: const Text('GPS Location Breadcrumbs', style: TextStyle(fontSize: 14)),
-            subtitle: const Text('Adaptive battery-efficient location tracking', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            value: _location,
-            activeThumbColor: AppColors.cyanAccent,
-            onChanged: (val) => setState(() => _location = val),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('Audio Anomaly Detection', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Local acoustic scream & shatter evaluation', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  value: _audio,
+                  activeThumbColor: AppColors.cyanAccent,
+                  onChanged: (val) => setState(() => _audio = val),
+                ),
+                const Divider(height: 1, color: AppColors.border),
+                SwitchListTile(
+                  title: const Text('Motion / Impact Detection', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('3-axis Accelerometer & Gyroscope monitoring', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  value: _motion,
+                  activeThumbColor: AppColors.cyanAccent,
+                  onChanged: (val) => setState(() => _motion = val),
+                ),
+                const Divider(height: 1, color: AppColors.border),
+                SwitchListTile(
+                  title: const Text('GPS Location Breadcrumbs', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Adaptive battery-efficient location tracking', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  value: _location,
+                  activeThumbColor: AppColors.cyanAccent,
+                  onChanged: (val) => setState(() => _location = val),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),
 
+          // Start Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -202,20 +315,29 @@ class _JourneyScreenState extends State<JourneyScreen> {
                 }
                 await permService.requestPermission(AppPermissionType.notifications);
 
-                safety.startJourney(
+                // Save trusted contact locally
+                await StorageService().saveTrustedContact(
+                  TrustedContact(
+                    name: _contactNameController.text,
+                    phone: _contactPhoneController.text,
+                  ),
+                );
+
+                await safety.startJourney(
                   destination: _destController.text,
-                  journeyName: 'Late-Night Commute Home',
+                  journeyName: _journeyNameController.text,
                   contactName: _contactNameController.text,
                   contactPhone: _contactPhoneController.text,
                   audio: _audio,
                   motion: _motion,
                   locationTracking: _location,
+                  expectedMinutes: _expectedMinutes,
                 );
               },
-              icon: const Icon(Icons.shield, color: Colors.black),
+              icon: const Icon(Icons.shield_rounded, color: Colors.black),
               label: const Text(
                 'START SAFE JOURNEY',
-                style: TextStyle(fontWeight: FontWeight.w900, color: Colors.black),
+                style: TextStyle(fontWeight: FontWeight.w900, color: Colors.black, letterSpacing: 0.5),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.success,
@@ -224,6 +346,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -242,7 +365,25 @@ class _JourneyScreenState extends State<JourneyScreen> {
     );
   }
 
-  Widget _buildActiveView(BuildContext context, SafetyProvider safety, dynamic journey, dynamic currentPos) {
+  Widget _journeyPresetChip(String label, String value) {
+    return ActionChip(
+      label: Text(label, style: const TextStyle(fontSize: 11)),
+      backgroundColor: AppColors.surface,
+      side: const BorderSide(color: AppColors.border),
+      onPressed: () {
+        setState(() {
+          _journeyNameController.text = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildActiveView(
+    BuildContext context,
+    SafetyProvider safety,
+    Journey journey,
+    LocationPoint currentPos,
+  ) {
     final latLng = LatLng(currentPos.latitude, currentPos.longitude);
 
     return Column(
@@ -338,8 +479,14 @@ class _JourneyScreenState extends State<JourneyScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        safety.location.isRealGps ? 'REAL GPS FIXED' : 'SIMULATED GPS',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        safety.location.isRealGps
+                            ? 'GPS ACCURACY: ±${currentPos.accuracy.toStringAsFixed(1)}m'
+                            : 'ESTIMATED / SIMULATED LOCATION',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: safety.location.isRealGps ? AppColors.success : AppColors.warning,
+                        ),
                       ),
                     ],
                   ),
@@ -349,7 +496,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
           ),
         ),
 
-        // Active Telemetry Card
+        // Journey Telemetry Card
         Container(
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
@@ -366,7 +513,11 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     children: [
                       Text(
                         journey.destination,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      ),
+                      Text(
+                        '${journey.journeyName} • ${journey.expectedArrivalMinutes}m Target • ID: ${journey.id}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                       ),
                       Text(
                         'Duration: ${_formatDuration(journey.elapsedSeconds)}',
@@ -384,6 +535,44 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     child: Text(
                       journey.status,
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // End Journey / Trigger Danger Row
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        safety.resetDemo();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textMuted,
+                        side: const BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('END JOURNEY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        safety.triggerDangerDetected(isSimulated: true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.emergency,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text(
+                        'SIMULATE DANGER',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
                     ),
                   ),
                 ],

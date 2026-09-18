@@ -119,6 +119,7 @@ class SafetyProvider extends ChangeNotifier {
     bool audio = true,
     bool motion = true,
     bool locationTracking = true,
+    int expectedMinutes = 30,
   }) async {
     final now = DateTime.now();
     _activeJourney = Journey(
@@ -134,6 +135,7 @@ class SafetyProvider extends ChangeNotifier {
       audioMonitoring: audio,
       motionMonitoring: motion,
       locationMonitoring: locationTracking,
+      expectedArrivalMinutes: expectedMinutes,
       breadcrumbs: [location.currentLocation],
     );
 

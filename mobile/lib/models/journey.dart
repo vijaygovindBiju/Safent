@@ -85,6 +85,7 @@ class Journey {
   bool audioMonitoring;
   bool motionMonitoring;
   bool locationMonitoring;
+  int expectedArrivalMinutes;
   List<LocationPoint> breadcrumbs;
 
   Journey({
@@ -100,6 +101,7 @@ class Journey {
     this.audioMonitoring = true,
     this.motionMonitoring = true,
     this.locationMonitoring = true,
+    this.expectedArrivalMinutes = 30,
     List<LocationPoint>? breadcrumbs,
   }) : breadcrumbs = breadcrumbs ?? [];
 
@@ -117,6 +119,7 @@ class Journey {
       'audioMonitoring': audioMonitoring,
       'motionMonitoring': motionMonitoring,
       'locationMonitoring': locationMonitoring,
+      'expectedArrivalMinutes': expectedArrivalMinutes,
       'breadcrumbs': breadcrumbs.map((p) => p.toMap()).toList(),
     };
   }
@@ -135,6 +138,7 @@ class Journey {
       audioMonitoring: map['audioMonitoring'] ?? true,
       motionMonitoring: map['motionMonitoring'] ?? true,
       locationMonitoring: map['locationMonitoring'] ?? true,
+      expectedArrivalMinutes: map['expectedArrivalMinutes'] ?? 30,
       breadcrumbs: (map['breadcrumbs'] as List<dynamic>?)
               ?.map((p) => LocationPoint.fromMap(p))
               .toList() ??

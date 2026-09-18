@@ -63,10 +63,13 @@
 - [x] Interactive network simulation toggle (tap Network card to simulate offline dead-zone) `[REAL]`
 
 ## 🗺️ Phase 4 — Journey Setup & Preferences
-- [ ] Destination & journey naming form `[PLANNED]`
-- [ ] Trusted emergency contact inputs `[PLANNED]`
-- [ ] Sensor monitoring preference toggles (Audio, Motion, Location) `[PLANNED]`
-- [ ] Unique journey ID generation and local persistence `[PLANNED]`
+- [x] Journey naming field with quick presets ('Transit Home', 'Campus Commute', 'Night Cab') `[REAL]`
+- [x] Destination configuration with location presets ('Home (Panampilly)', 'College (CUSAT)', 'Kochi (MG Road)', 'Airport (COK)', 'InfoPark') `[REAL]`
+- [x] Expected arrival duration selector (15m, 30m, 45m, 60m) `[REAL]`
+- [x] Emergency trusted contact inputs (Name, Phone) with local persistence via `StorageService` `[REAL]`
+- [x] On-device sensor monitoring toggles (Audio Anomaly, Motion/Impact, GPS Breadcrumbs) `[REAL]`
+- [x] Unique Journey ID generation (`JNY-XXXXXXXX`) with local state persistence across reboots `[REAL]`
+- [x] Dynamic runtime permission checks triggered before journey activation `[REAL]`
 
 ## 📍 Phase 5 — Real Map & Offline Fallback
 - [ ] OpenStreetMap (`flutter_map`) real-device rendering `[REAL]`
