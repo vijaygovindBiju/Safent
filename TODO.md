@@ -54,10 +54,13 @@
 - [x] Dynamic on-demand permission triggering before journey tracking begins in `JourneyScreen` `[REAL]`
 
 ## 🏠 Phase 3 — Home Dashboard & Quick Access
-- [ ] Header banner & product mission tagline `[PLANNED]`
-- [ ] Dynamic status cards (Active journey, Network state, Battery, Nearby peers) `[PLANNED]`
-- [ ] Primary CTAs (Start Journey, Full Demo, Emergency SOS) `[PLANNED]`
-- [ ] Mesh relay explainer callout `[PLANNED]`
+- [x] Premium header with "Travel SOS Mesh" brand and "Safety that works beyond the network." subtitle `[REAL]`
+- [x] 6-card glanceable status grid: Journey (Inactive/Active), Network (Online/Offline), Safety (Monitoring/Not Monitoring), Battery (XX%), Nearby Relay (2 Devices), Location (GPS Fix / Coordinates) `[REAL]`
+- [x] Primary CTA: [ START JOURNEY ] (or [ VIEW JOURNEY ] when active) `[REAL]`
+- [x] Secondary CTA: [ RUN DEMO ] / [ STOP ] with live percentage and step ticker `[REAL]`
+- [x] Emergency CTA: High-contrast [ EMERGENCY SOS ] button `[REAL]`
+- [x] Compact mesh concept explainer banner ("If your phone loses Internet...") `[REAL]`
+- [x] Interactive network simulation toggle (tap Network card to simulate offline dead-zone) `[REAL]`
 
 ## 🗺️ Phase 4 — Journey Setup & Preferences
 - [ ] Destination & journey naming form `[PLANNED]`
