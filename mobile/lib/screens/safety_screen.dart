@@ -121,7 +121,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                   child: _sensorBox(
                     label: 'ROTATION',
                     value: '${sensors.currentGyroDps}°/s',
-                    subtitle: '3-Axis Gyro',
+                    subtitle: 'Peak: ${sensors.peakGyroDps}°/s',
                     icon: Icons.rotate_right,
                     color: sensors.rotationCandidate ? AppColors.emergency : AppColors.meshIndigo,
                   ),
@@ -131,13 +131,42 @@ class _SafetyScreenState extends State<SafetyScreen> {
                   child: _sensorBox(
                     label: 'ACOUSTIC',
                     value: '${sensors.soundDb.toInt()} dB',
-                    subtitle: 'Ambient RMS',
+                    subtitle: sensors.acousticClassification.name.toUpperCase(),
                     icon: Icons.mic_none,
                     color: sensors.acousticCandidate ? AppColors.emergency : AppColors.warning,
                   ),
                 ),
               ],
             ),
+
+            if (sensors.lastAnomaly != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.emergency.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.emergency.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.emergency),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Recent Anomaly: ${sensors.lastAnomaly}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.emergency,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             const SizedBox(height: 22),
 
@@ -169,16 +198,23 @@ class _SafetyScreenState extends State<SafetyScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
-                          color: risk.totalScore >= 75 ? AppColors.emergency : AppColors.success,
+                          color: risk.totalScore >= safety.risk.riskThreshold
+                              ? AppColors.emergency
+                              : AppColors.safe,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   _riskBar('Impact / Rapid Deceleration (>3.8G)', risk.impactScore, 40),
-                  _riskBar('Acoustic Distress Spike (>85 dB)', risk.audioScore, 25),
+                  _riskBar('Acoustic Distress Spike (>80 dB)', risk.audioScore, 25),
                   _riskBar('Sudden Vehicle Tumble (>80°/s)', risk.rotationScore, 20),
                   _riskBar('Late-Night Journey Context (>22:00)', risk.contextScore, 10),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Threshold: ${safety.risk.riskThreshold}/100 • False-Alarm Corroboration Guard Active',
+                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                  ),
                 ],
               ),
             ),

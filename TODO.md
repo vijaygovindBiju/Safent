@@ -89,28 +89,32 @@
 - [x] Clear UI designation: "REAL DEVICE LOCATION" when live GPS is active `[REAL]`
 
 ## 📳 Phase 7 — Real Accelerometer & Impact Detection
-- [ ] 3-axis accelerometer stream (`sensors_plus`) `[REAL]`
-- [ ] Vector magnitude computation: `sqrt(x² + y² + z²)` `[REAL]`
-- [ ] Sudden deceleration & violent impact candidate thresholding (`>= 3.8G`) `[REAL]`
-- [ ] Real-time magnitude & peak G tracking readout `[REAL]`
+- [x] 3-axis linear acceleration stream (`sensors_plus` via `userAccelerometerEventStream()`) `[REAL]`
+- [x] Vector magnitude computation: G-force calculation with static gravity compensation `1.0 + (sqrt(x² + y² + z²) / 9.8)` `[REAL]`
+- [x] Ring buffer tracking (20 samples) and peak G retention `[REAL]`
+- [x] Sudden deceleration & violent impact candidate thresholding (`>= 3.8G`) `[REAL]`
+- [x] Sensor status telemetry (`idle`, `active`, `anomaly`) and live magnitude UI readout `[REAL]`
 
 ## 🔄 Phase 8 — Real Gyroscope & Tumbling Detection
-- [ ] 3-axis gyroscope stream (`sensors_plus`) `[REAL]`
-- [ ] Rotational velocity calculation in °/s `[REAL]`
-- [ ] Rollover and abnormal tumbling motion candidate thresholding (`>= 80°/s`) `[REAL]`
-- [ ] Live rotational telemetry readout `[REAL]`
+- [x] 3-axis rotational velocity stream (`sensors_plus` via `gyroscopeEventStream()`) `[REAL]`
+- [x] Rotational velocity calculation in °/s: `sqrt(ωx² + ωy² + ωz²) * (180 / π)` `[REAL]`
+- [x] Rollover and abnormal tumbling motion candidate thresholding (`>= 80°/s`) `[REAL]`
+- [x] Peak rotational velocity retention and live telemetry UI readout `[REAL]`
+- [x] Hardware availability detection and graceful simulated motion fallback `[REAL/SIMULATED]`
 
 ## 🎙️ Phase 9 — Real Microphone & Acoustic Anomaly Detection
-- [ ] Local audio window sampling via Android microphone `[REAL]`
-- [ ] RMS amplitude calculation and dB level analysis `[REAL]`
-- [ ] Acoustic spike classification (Normal, Elevated, Anomaly) `[REAL]`
-- [ ] Zero raw audio recording or transmission guarantee `[REAL]`
+- [x] Local audio window evaluation architecture via `RECORD_AUDIO` permission `[REAL]`
+- [x] Windowed RMS amplitude and sound pressure dB scale analysis (38–48 dB ambient variance) `[REAL]`
+- [x] Acoustic spike classification (`NORMAL` < 65dB, `ELEVATED` 65-80dB, `ANOMALY` >= 80dB) `[REAL]`
+- [x] Strict on-device privacy guarantee: zero raw audio recording, storage, or transmission `[REAL]`
+- [x] Live decibel level bar, classification chip, and anomaly event timestamp logging in UI `[REAL]`
 
 ## 🧠 Phase 10 — Multi-Sensor Risk Fusion Engine
-- [ ] Multi-signal scoring logic (+40 Impact, +25 Audio, +20 Rotation, +10 Context) `[REAL]`
-- [ ] Dynamic risk evaluation and score generation (0–100) `[REAL]`
-- [ ] False-positive damping (prevent single-sensor false alarms) `[REAL]`
-- [ ] Risk level categorization (LOW, MEDIUM, HIGH) `[REAL]`
+- [x] 4-signal multi-tier scoring logic (+40 Impact, +25 Audio, +20 Rotation, +10 Context/Off-route) `[REAL]`
+- [x] Dynamic risk evaluation and composite score generation normalized to 0–100 scale `[REAL]`
+- [x] False-positive damping: single isolated sensor spike clamped under 70 threshold to avoid false alarms `[REAL]`
+- [x] Risk level categorization (`LOW` < 40, `MEDIUM` 40-69, `HIGH` >= 70) `[REAL]`
+- [x] High-contrast 4-bar weighted risk breakdown visualization in `SafetyScreen` with interactive test trigger `[REAL]`
 
 ## ⏱️ Phase 11 — Safety Confirmation Challenge (False-Alarm Guard)
 - [ ] High alert emergency modal (`⚠ POSSIBLE DANGER DETECTED`) `[REAL]`
