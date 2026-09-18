@@ -15,6 +15,7 @@ class AppColors {
   static const Color cyanAccent = Color(0xFF06B6D4);
   static const Color emergency = Color(0xFFEF4444);
   static const Color emergencyDark = Color(0xFF7F1D1D);
+  static const Color emergencyLight = Color(0xFFF87171);
   static const Color warning = Color(0xFFF59E0B);
   static const Color success = Color(0xFF10B981);
   static const Color safe = success;

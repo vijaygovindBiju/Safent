@@ -13,13 +13,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _audioMonitoring = true;
-  bool _motionMonitoring = true;
-  bool _locationTracking = true;
-  bool _meshRelayParticipation = true;
-  int _countdownDuration = 10;
-  final int _riskThreshold = 70;
-
   @override
   Widget build(BuildContext context) {
     final safety = context.watch<SafetyProvider>();
@@ -38,7 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 10),
             _buildCard([
               SwitchListTile(
-                value: _audioMonitoring,
+                value: safety.audioMonitoringEnabled,
                 activeThumbColor: AppColors.primary,
                 title: const Text(
                   'Acoustic Anomaly Detection',
@@ -48,11 +41,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Analyzes local RMS sound windows for crashes/screams. Never uploads raw audio.',
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
-                onChanged: (val) => setState(() => _audioMonitoring = val),
+                onChanged: (val) => safety.updateSettings(audioMonitoring: val),
               ),
               const Divider(height: 1, color: AppColors.surfaceBorder),
               SwitchListTile(
-                value: _motionMonitoring,
+                value: safety.motionMonitoringEnabled,
                 activeThumbColor: AppColors.primary,
                 title: const Text(
                   'Motion & Gyroscope Fusion',
@@ -62,11 +55,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Monitors accelerometer linear G-force and rotational velocity for rollover/impact.',
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
-                onChanged: (val) => setState(() => _motionMonitoring = val),
+                onChanged: (val) => safety.updateSettings(motionMonitoring: val),
               ),
               const Divider(height: 1, color: AppColors.surfaceBorder),
               SwitchListTile(
-                value: _locationTracking,
+                value: safety.locationTrackingEnabled,
                 activeThumbColor: AppColors.primary,
                 title: const Text(
                   'Adaptive GPS Location Tracking',
@@ -76,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Logs breadcrumbs with high accuracy during active travel and emergencies.',
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
-                onChanged: (val) => setState(() => _locationTracking = val),
+                onChanged: (val) => safety.updateSettings(locationTracking: val),
               ),
             ]),
 
@@ -92,11 +85,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 subtitle: Text(
-                  '$_countdownDuration seconds before automatic SOS trigger',
+                  '${safety.configuredCountdownDuration} seconds before automatic SOS trigger',
                   style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
                 trailing: DropdownButton<int>(
-                  value: _countdownDuration,
+                  value: safety.configuredCountdownDuration,
                   dropdownColor: AppColors.surface,
                   underline: const SizedBox(),
                   items: const [
@@ -105,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     DropdownMenuItem(value: 15, child: Text('15s (Extended)')),
                   ],
                   onChanged: (val) {
-                    if (val != null) setState(() => _countdownDuration = val);
+                    if (val != null) safety.updateSettings(countdownDuration: val);
                   },
                 ),
               ),
@@ -116,17 +109,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 subtitle: Text(
-                  'Score >= $_riskThreshold / 100 initiates emergency countdown',
+                  'Score >= ${safety.configuredRiskThreshold} / 100 initiates emergency countdown',
                   style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
-                trailing: Text(
-                  '$_riskThreshold',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
-                  ),
+                trailing: DropdownButton<int>(
+                  value: safety.configuredRiskThreshold,
+                  dropdownColor: AppColors.surface,
+                  underline: const SizedBox(),
+                  items: const [
+                    DropdownMenuItem(value: 60, child: Text('60 (Sensitive)')),
+                    DropdownMenuItem(value: 70, child: Text('70 (Recommended)')),
+                    DropdownMenuItem(value: 80, child: Text('80 (High Guard)')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) safety.updateSettings(riskThreshold: val);
+                  },
                 ),
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // Section: Battery Optimization & Adaptive Throttling (Phase 24)
+            _buildSectionHeader('Battery Management & Power Optimization', Icons.battery_charging_full),
+            const SizedBox(height: 10),
+            _buildCard([
+              SwitchListTile(
+                value: safety.adaptiveBatteryThrottling,
+                activeThumbColor: AppColors.primary,
+                title: const Text(
+                  'Adaptive Sensor Throttling',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  'Current Level: ${safety.batteryLevel}%. Dynamically reduces sensor sampling during non-critical transit below 30% battery.',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+                onChanged: (val) => safety.updateSettings(batteryOptimization: val),
               ),
             ]),
 
@@ -137,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 10),
             _buildCard([
               SwitchListTile(
-                value: _meshRelayParticipation,
+                value: safety.meshRelayEnabled,
                 activeThumbColor: AppColors.primary,
                 title: const Text(
                   'Participate as Mesh Relay Peer',
@@ -147,7 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Allows encrypted zero-knowledge SOS packets from nearby offline travellers to hop through this device toward 5G gateways.',
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
-                onChanged: (val) => setState(() => _meshRelayParticipation = val),
+                onChanged: (val) => safety.updateSettings(meshRelayParticipation: val),
               ),
               const Divider(height: 1, color: AppColors.surfaceBorder),
               const ListTile(

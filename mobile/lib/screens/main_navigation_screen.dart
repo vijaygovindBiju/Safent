@@ -145,58 +145,60 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       body: Column(
         children: [
-          // High Priority Danger Alert Banner
+          // High Priority Danger Alert Banner (Phase 11 False-Alarm Guard)
           if (isDanger)
             Material(
               color: AppColors.emergency,
-              child: InkWell(
-                onTap: () => _onTabSelected(2), // Jump to safety screen
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'CRITICAL: POSSIBLE DANGER DETECTED',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'POSSIBLE DANGER DETECTED',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
                             ),
-                            Text(
-                              'Countdown active: ${safety.dangerCountdown}s left! Tap to verify safety.',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'RESPOND',
-                          style: TextStyle(
-                            color: AppColors.emergency,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 11,
                           ),
-                        ),
+                          Text(
+                            '${safety.dangerCountdown}s left! Confirm safe or SOS dispatches.',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => safety.confirmSafe(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "I'M SAFE",
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton(
+                      icon: const Icon(Icons.open_in_new, color: Colors.white, size: 18),
+                      tooltip: 'View Safety Hub',
+                      onPressed: () => _onTabSelected(2),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -12,6 +12,7 @@ class RiskEngine extends ChangeNotifier {
 
   RiskFusionScore get currentScore => _currentScore;
   int get riskThreshold => _riskThreshold;
+  set riskThreshold(int value) => updateThreshold(value);
   List<String> get activeSignalDescriptions => _activeSignalDescriptions;
   bool get isHighRisk => _currentScore.totalScore >= _riskThreshold;
 

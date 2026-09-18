@@ -96,15 +96,21 @@ class MeshScreen extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // Manual Hop Advance Button
+            // Controls: Step Hop, Inject SOS, Reset
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: currentHop < 4 ? () => mesh.advanceHop() : null,
+                    onPressed: currentHop < 4 && mesh.activeMessage != null
+                        ? () => mesh.advanceHop()
+                        : null,
                     icon: const Icon(Icons.fast_forward, color: Colors.white),
                     label: Text(
-                      currentHop < 4 ? 'STEP NEXT HOP (HOP ${currentHop + 1})' : 'DELIVERY COMPLETE',
+                      currentHop < 4 && mesh.activeMessage != null
+                          ? 'STEP NEXT HOP (${currentHop + 1}/4)'
+                          : currentHop >= 4
+                              ? 'DELIVERY COMPLETE'
+                              : 'NO ACTIVE PACKET',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -121,6 +127,50 @@ class MeshScreen extends StatelessWidget {
                   tooltip: 'Reset Mesh',
                 ),
               ],
+            ),
+
+            if (mesh.activeMessage == null) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    safety.triggerImmediateSOS(isAuto: false);
+                  },
+                  icon: const Icon(Icons.add_alert_rounded, color: AppColors.warning),
+                  label: const Text(
+                    'INJECT DISTRESS BEACON INTO MESH',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.warning),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: AppColors.textMuted),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '[REAL] 31-byte PDU framing & local queue. [SIMULATED] Multi-hop forwarder across Nodes B & C for single-phone evaluation.',
+                      style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

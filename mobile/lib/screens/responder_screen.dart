@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
@@ -413,6 +414,9 @@ class ResponderScreen extends StatelessWidget {
   }
 
   Widget _buildSmsPreview(Incident inc) {
+    final smsBody =
+        'EMERGENCY ALERT: ${inc.travellerName} triggered an SOS at ${inc.location.landmark.isNotEmpty ? inc.location.landmark : "${inc.location.latitude.toStringAsFixed(4)}, ${inc.location.longitude.toStringAsFixed(4)}"}. (Accuracy ±${inc.location.accuracy.toInt()}m, Battery: ${inc.battery}%). Response units notified. Live tracking: https://travel-sos.maravazha.org/track/${inc.id}';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -423,16 +427,53 @@ class ResponderScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.sms_outlined, size: 16, color: AppColors.warning),
-              SizedBox(width: 8),
-              Text(
-                'Trusted Contact Emergency SMS (Simulated)',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.warning,
+              const Row(
+                children: [
+                  Icon(Icons.sms_outlined, size: 16, color: AppColors.warning),
+                  SizedBox(width: 8),
+                  Text(
+                    'Trusted Contact Emergency SMS (Simulated)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.warning,
+                    ),
+                  ),
+                ],
+              ),
+              Builder(
+                builder: (ctx) => InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: smsBody));
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(
+                        content: Text('Emergency SMS copied to clipboard.'),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: AppColors.safe,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.copy, size: 12, color: AppColors.warning),
+                        SizedBox(width: 4),
+                        Text(
+                          'COPY SMS',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.warning),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -446,7 +487,7 @@ class ResponderScreen extends StatelessWidget {
               border: Border.all(color: AppColors.surfaceBorder),
             ),
             child: Text(
-              'EMERGENCY ALERT: ${inc.travellerName} triggered an SOS at ${inc.location.landmark.isNotEmpty ? inc.location.landmark : "${inc.location.latitude.toStringAsFixed(4)}, ${inc.location.longitude.toStringAsFixed(4)}"}. Response units notified. Live tracking: https://travel-sos.maravazha.org/track/${inc.id}',
+              smsBody,
               style: const TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 11,

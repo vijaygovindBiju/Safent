@@ -1,46 +1,12 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/safety_provider.dart';
+import '../widgets/radial_hold_sos_button.dart';
+import '../widgets/safety_challenge_modal.dart';
 
-class SafetyScreen extends StatefulWidget {
+class SafetyScreen extends StatelessWidget {
   const SafetyScreen({super.key});
-
-  @override
-  State<SafetyScreen> createState() => _SafetyScreenState();
-}
-
-class _SafetyScreenState extends State<SafetyScreen> {
-  double _holdProgress = 0.0;
-  Timer? _holdTimer;
-
-  void _startHold(SafetyProvider safety) {
-    _holdTimer?.cancel();
-    _holdTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      setState(() {
-        _holdProgress += 0.035; // ~1.5 seconds to reach 1.0
-        if (_holdProgress >= 1.0) {
-          _holdProgress = 1.0;
-          timer.cancel();
-          safety.triggerImmediateSOS();
-        }
-      });
-    });
-  }
-
-  void _endHold() {
-    _holdTimer?.cancel();
-    setState(() {
-      _holdProgress = 0.0;
-    });
-  }
-
-  @override
-  void dispose() {
-    _holdTimer?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +23,14 @@ class _SafetyScreenState extends State<SafetyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // High Urgency 10s Confirmation Overlay if danger is active
+            // High Urgency 10s Confirmation Overlay if danger is active (Phase 11)
             if (safety.isDangerActive)
-              _buildDangerChallengeCard(context, safety),
+              SafetyChallengeModal(safety: safety),
 
             if (safety.isDangerActive)
               const SizedBox(height: 20),
 
-            // Emergency HOLD FOR SOS Primary Button
+            // Emergency HOLD FOR SOS Primary Button (Phase 12)
             _buildHoldSosCard(context, safety),
 
             const SizedBox(height: 22),
@@ -241,86 +207,14 @@ class _SafetyScreenState extends State<SafetyScreen> {
                 ),
               ),
             ),
+
+            // Phase 20: Real 31-byte BLE Emergency Beacon Viewer
+            if (safety.ble.lastAdvertisedPacket != null) ...[
+              const SizedBox(height: 18),
+              _buildBleBeaconCard(safety),
+            ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDangerChallengeCard(BuildContext context, SafetyProvider safety) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.emergencyDark.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.emergency, width: 2),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.warning, color: AppColors.emergency, size: 40),
-          const SizedBox(height: 8),
-          const Text(
-            '⚠ POSSIBLE DANGER DETECTED',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Are you safe? Confirm within the window or SOS dispatches automatically.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 14),
-
-          // Countdown Dial
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black,
-              border: Border.all(color: AppColors.emergency, width: 3),
-            ),
-            child: Center(
-              child: Text(
-                '${safety.dangerCountdown}',
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Dual Action Buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => safety.confirmSafe(),
-                  icon: const Icon(Icons.check_circle, color: Colors.white),
-                  label: const Text("I'M SAFE", style: TextStyle(fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.success,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => safety.triggerImmediateSOS(),
-                  icon: const Icon(Icons.sos, color: Colors.white),
-                  label: const Text('SEND SOS NOW', style: TextStyle(fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.emergency,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -335,80 +229,106 @@ class _SafetyScreenState extends State<SafetyScreen> {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'EMERGENCY SOS TRIGGER',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.emergency),
               ),
               Text(
-                'HOLD 1.5s',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textMuted),
+                'HOLD 1.5s (ANTI-ACCIDENTAL GUARD)',
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Radial Hold Button
-          GestureDetector(
-            onTapDown: (_) => _startHold(safety),
-            onTapUp: (_) => _endHold(),
-            onTapCancel: () => _endHold(),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 130,
-                  height: 130,
-                  child: CircularProgressIndicator(
-                    value: _holdProgress,
-                    strokeWidth: 8,
-                    color: AppColors.emergency,
-                    backgroundColor: AppColors.border,
-                  ),
-                ),
-                Container(
-                  width: 106,
-                  height: 106,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [AppColors.emergency, AppColors.emergencyDark],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.emergency.withValues(alpha: 0.4),
-                        blurRadius: 18,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.warning_amber_rounded, color: Colors.white, size: 32),
-                      SizedBox(height: 2),
-                      Text(
-                        'HOLD FOR',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white70),
-                      ),
-                      Text(
-                        'SOS',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          // Reusable Radial Progress Hold Button (Phase 12)
+          RadialHoldSosButton(
+            onTriggered: () => safety.triggerImmediateSOS(isAuto: false),
+            size: 130,
+            label: 'SOS',
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           const Text(
             'Press and hold for 1.5s to trigger encrypted mesh SOS dispatch.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBleBeaconCard(SafetyProvider safety) {
+    final ble = safety.ble;
+    final payload = ble.lastParsedPayload;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.meshIndigo),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.bluetooth_searching, color: AppColors.meshIndigo, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'BLE 5.2 BEACON (31-BYTE PDU)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.meshIndigo,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.safe.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'REAL PDU ENCODER',
+                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.safe),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              ble.lastHexDump,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 11,
+                color: AppColors.cyanAccent,
+                letterSpacing: 1.0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'UUID: 0xFEE4 • MsgHash: ${payload != null ? "0x${payload.messageHash.toRadixString(16).toUpperCase()}" : ""} • CRC: ${payload != null ? "0x${payload.checksum.toRadixString(16).toUpperCase()}" : ""}',
+            style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
           ),
         ],
       ),

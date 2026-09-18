@@ -100,6 +100,42 @@ class StorageService {
     }
   }
 
+  // --- User Safety Settings ---
+  static const String _keySettings = 'travel_sos_user_settings';
+
+  Future<void> saveSettings({
+    required int countdownDuration,
+    required int riskThreshold,
+    required bool audioMonitoring,
+    required bool motionMonitoring,
+    required bool locationTracking,
+    required bool meshRelayParticipation,
+    required bool batteryOptimization,
+  }) async {
+    await init();
+    final map = {
+      'countdownDuration': countdownDuration,
+      'riskThreshold': riskThreshold,
+      'audioMonitoring': audioMonitoring,
+      'motionMonitoring': motionMonitoring,
+      'locationTracking': locationTracking,
+      'meshRelayParticipation': meshRelayParticipation,
+      'batteryOptimization': batteryOptimization,
+    };
+    await _prefs!.setString(_keySettings, json.encode(map));
+  }
+
+  Future<Map<String, dynamic>?> loadSettings() async {
+    await init();
+    final str = _prefs!.getString(_keySettings);
+    if (str == null) return null;
+    try {
+      return json.decode(str) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // --- Onboarding Flow State ---
   Future<void> saveOnboardingCompleted(bool completed) async {
     await init();

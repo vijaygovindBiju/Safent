@@ -13,6 +13,9 @@ import '../services/location_service.dart';
 import '../services/sensor_service.dart';
 import '../services/risk_engine.dart';
 import '../services/mesh_service.dart';
+import '../services/ble_service.dart';
+import '../services/backend_service.dart';
+import 'package:flutter/services.dart';
 
 class SafetyProvider extends ChangeNotifier {
   final StorageService _storage = StorageService();
@@ -21,6 +24,8 @@ class SafetyProvider extends ChangeNotifier {
   final SensorService sensors = SensorService();
   final RiskEngine risk = RiskEngine();
   final MeshService mesh = MeshService();
+  final BleService ble = BleService();
+  final BackendService backend = BackendService();
   final Battery _battery = Battery();
   final Uuid _uuid = const Uuid();
 
@@ -34,6 +39,15 @@ class SafetyProvider extends ChangeNotifier {
   bool _isDangerActive = false;
   Timer? _countdownTimer;
   Timer? _journeyDurationTimer;
+
+  // Configurable Settings (Phase 25)
+  int _configuredCountdownDuration = 10;
+  int _configuredRiskThreshold = 70;
+  bool _audioMonitoringEnabled = true;
+  bool _motionMonitoringEnabled = true;
+  bool _locationTrackingEnabled = true;
+  bool _meshRelayEnabled = true;
+  bool _adaptiveBatteryThrottling = true;
 
   // Demo Automation state
   bool _isDemoRunning = false;
@@ -52,6 +66,14 @@ class SafetyProvider extends ChangeNotifier {
   int get demoProgress => _demoProgress;
   String get demoStepText => _demoStepText;
 
+  int get configuredCountdownDuration => _configuredCountdownDuration;
+  int get configuredRiskThreshold => _configuredRiskThreshold;
+  bool get audioMonitoringEnabled => _audioMonitoringEnabled;
+  bool get motionMonitoringEnabled => _motionMonitoringEnabled;
+  bool get locationTrackingEnabled => _locationTrackingEnabled;
+  bool get meshRelayEnabled => _meshRelayEnabled;
+  bool get adaptiveBatteryThrottling => _adaptiveBatteryThrottling;
+
   bool get isMonitoringActive =>
       _activeJourney != null &&
       (_activeJourney!.status == 'ACTIVE' || _activeJourney!.status == 'DANGER_SUSPECTED');
@@ -65,6 +87,19 @@ class SafetyProvider extends ChangeNotifier {
       _batteryLevel = await _battery.batteryLevel;
     } catch (_) {
       _batteryLevel = 78;
+    }
+
+    // Load persisted settings (Phase 25)
+    final savedSettings = await _storage.loadSettings();
+    if (savedSettings != null) {
+      _configuredCountdownDuration = savedSettings['countdownDuration'] ?? 10;
+      _configuredRiskThreshold = savedSettings['riskThreshold'] ?? 70;
+      _audioMonitoringEnabled = savedSettings['audioMonitoring'] ?? true;
+      _motionMonitoringEnabled = savedSettings['motionMonitoring'] ?? true;
+      _locationTrackingEnabled = savedSettings['locationTracking'] ?? true;
+      _meshRelayEnabled = savedSettings['meshRelayParticipation'] ?? true;
+      _adaptiveBatteryThrottling = savedSettings['batteryOptimization'] ?? true;
+      risk.riskThreshold = _configuredRiskThreshold;
     }
 
     // Load persisted data
@@ -184,8 +219,9 @@ class SafetyProvider extends ChangeNotifier {
     if (_isDangerActive) return;
 
     _isDangerActive = true;
-    _dangerCountdown = 10;
+    _dangerCountdown = _configuredCountdownDuration;
     location.setEmergencyMode(true);
+    HapticFeedback.heavyImpact();
 
     if (_activeJourney != null) {
       _activeJourney!.status = 'DANGER_SUSPECTED';
@@ -226,7 +262,7 @@ class SafetyProvider extends ChangeNotifier {
         IncidentEvent(
           id: 'EVT-2',
           title: 'Safety Confirmation Challenge',
-          description: '10-second countdown started to prevent false alarms.',
+          description: '$_configuredCountdownDuration-second countdown started to prevent false alarms.',
           category: 'SAFETY_CHECK',
           severity: 'WARNING',
         ),
@@ -241,6 +277,11 @@ class SafetyProvider extends ChangeNotifier {
         triggerImmediateSOS(isAuto: true);
       } else {
         _dangerCountdown--;
+        if (_dangerCountdown <= 3) {
+          HapticFeedback.mediumImpact();
+        } else {
+          HapticFeedback.selectionClick();
+        }
         notifyListeners();
       }
     });
@@ -252,8 +293,9 @@ class SafetyProvider extends ChangeNotifier {
   void confirmSafe() {
     _countdownTimer?.cancel();
     _isDangerActive = false;
-    _dangerCountdown = 10;
+    _dangerCountdown = _configuredCountdownDuration;
     location.setEmergencyMode(false);
+    ble.stopBroadcasting();
 
     if (_activeJourney != null) {
       _activeJourney!.status = 'ACTIVE';
@@ -317,6 +359,27 @@ class SafetyProvider extends ChangeNotifier {
       ),
     );
 
+    // Phase 20: Start 31-byte BLE Emergency Beacon Broadcast
+    ble.startBroadcastingSOS(
+      messageId: msgId,
+      latitude: location.currentLocation.latitude,
+      longitude: location.currentLocation.longitude,
+      accuracy: location.currentLocation.accuracy,
+      battery: _batteryLevel,
+      riskScore: _currentIncident!.riskScore,
+      hopCount: 0,
+    );
+
+    _currentIncident!.timeline.add(
+      IncidentEvent(
+        id: 'EVT-BLE',
+        title: 'BLE Extended Advertising Active',
+        description: '31-byte compact distress frame broadcasting to nearby relay nodes. Hex: ${ble.lastHexDump.length > 20 ? ble.lastHexDump.substring(0, 20) : ble.lastHexDump}...',
+        category: 'BLE_BROADCAST',
+        severity: 'CRITICAL',
+      ),
+    );
+
     // Create SOS packet
     final sosMessage = SOSMessage(
       messageId: msgId,
@@ -351,9 +414,9 @@ class SafetyProvider extends ChangeNotifier {
     _incidentHistory.insert(0, _currentIncident!);
     await _storage.saveIncidents(_incidentHistory);
 
-    // If online, immediately upload
+    // If online, immediately upload to cloud backend
     if (network.isOnline) {
-      _flushPendingSosQueue();
+      await _flushPendingSosQueue();
     }
 
     notifyListeners();
@@ -364,6 +427,9 @@ class SafetyProvider extends ChangeNotifier {
     if (_pendingSosQueue.isEmpty) return;
 
     for (final msg in _pendingSosQueue) {
+      if (_currentIncident != null) {
+        await backend.dispatchSOS(msg, _currentIncident!);
+      }
       msg.status = 'DELIVERED';
     }
     _pendingSosQueue.clear();
@@ -403,6 +469,7 @@ class SafetyProvider extends ChangeNotifier {
         ),
       );
       _storage.saveIncidents(_incidentHistory);
+      backend.acknowledgeIncident(_currentIncident!.id, responder);
       notifyListeners();
     }
   }
@@ -420,11 +487,46 @@ class SafetyProvider extends ChangeNotifier {
         ),
       );
       _storage.saveIncidents(_incidentHistory);
+      backend.resolveIncident(_currentIncident!.id);
+      ble.stopBroadcasting();
     }
     if (_activeJourney != null) {
       _activeJourney!.status = 'COMPLETED';
       _storage.saveActiveJourney(_activeJourney);
     }
+    notifyListeners();
+  }
+
+  // Phase 25: Settings Update & Persistence
+  Future<void> updateSettings({
+    int? countdownDuration,
+    int? riskThreshold,
+    bool? audioMonitoring,
+    bool? motionMonitoring,
+    bool? locationTracking,
+    bool? meshRelayParticipation,
+    bool? batteryOptimization,
+  }) async {
+    if (countdownDuration != null) _configuredCountdownDuration = countdownDuration;
+    if (riskThreshold != null) {
+      _configuredRiskThreshold = riskThreshold;
+      risk.riskThreshold = riskThreshold;
+    }
+    if (audioMonitoring != null) _audioMonitoringEnabled = audioMonitoring;
+    if (motionMonitoring != null) _motionMonitoringEnabled = motionMonitoring;
+    if (locationTracking != null) _locationTrackingEnabled = locationTracking;
+    if (meshRelayParticipation != null) _meshRelayEnabled = meshRelayParticipation;
+    if (batteryOptimization != null) _adaptiveBatteryThrottling = batteryOptimization;
+
+    await _storage.saveSettings(
+      countdownDuration: _configuredCountdownDuration,
+      riskThreshold: _configuredRiskThreshold,
+      audioMonitoring: _audioMonitoringEnabled,
+      motionMonitoring: _motionMonitoringEnabled,
+      locationTracking: _locationTrackingEnabled,
+      meshRelayParticipation: _meshRelayEnabled,
+      batteryOptimization: _adaptiveBatteryThrottling,
+    );
     notifyListeners();
   }
 

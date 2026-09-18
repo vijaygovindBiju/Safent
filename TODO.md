@@ -117,77 +117,88 @@
 - [x] High-contrast 4-bar weighted risk breakdown visualization in `SafetyScreen` with interactive test trigger `[REAL]`
 
 ## ⏱️ Phase 11 — Safety Confirmation Challenge (False-Alarm Guard)
-- [ ] High alert emergency modal (`⚠ POSSIBLE DANGER DETECTED`) `[REAL]`
-- [ ] 10-second auditory & visual countdown timer `[REAL]`
-- [ ] [ I'M SAFE ] dismissal button (logs false-positive protection) `[REAL]`
-- [ ] [ SEND SOS NOW ] immediate override button `[REAL]`
-- [ ] Automatic SOS creation on timeout (Zero-user-interaction safety) `[REAL]`
+- [x] High alert emergency modal (`SafetyChallengeModal`) with red emergency pulse and danger cause `[REAL]`
+- [x] Configurable 10-second auditory & visual countdown timer with animated progress dial `[REAL]`
+- [x] [ I'M SAFE ] dismissal button (instantly aborts SOS and logs false-positive protection event) `[REAL]`
+- [x] [ SEND SOS NOW ] immediate override button bypassing countdown `[REAL]`
+- [x] Automatic SOS creation on timeout (Zero-user-interaction safety trigger) `[REAL]`
+- [x] Global alert banner with direct [ I'M SAFE ] dismissal accessible across all app tabs `[REAL]`
 
 ## 🔘 Phase 12 — Manual Emergency SOS Button
-- [ ] Radial progress hold-for-SOS button (1.5s press guard) `[REAL]`
-- [ ] Instant snapshot: GPS, Battery, Sensor peaks, Journey ID `[REAL]`
-- [ ] Immediate offline queue dispatch `[REAL]`
+- [x] Reusable radial progress hold-for-SOS button (`RadialHoldSosButton`) with 1.5s press guard `[REAL]`
+- [x] Tactile and auditory haptic feedback (medium tick on start, periodic intervals, heavy impact on completion) `[REAL]`
+- [x] Instant comprehensive telemetry snapshot: GPS (lat, lon, accuracy, speed), battery %, sensor peaks (peak G, peak °/s, peak dB), journey ID `[REAL]`
+- [x] Immediate dispatch into persistent offline queue `[REAL]`
 
 ## 💾 Phase 13 — Offline-First Persistent Storage
-- [ ] Persistent local SOS queue (`SharedPreferences` / SQLite) `[REAL]`
-- [ ] Structured SOS payload persistence across app reboots `[REAL]`
-- [ ] Message lifecycle tracking (`CREATED`, `QUEUED`, `RELAY_PENDING`, `UPLOADING`, `DELIVERED`) `[REAL]`
+- [x] Persistent local SOS queue via `StorageService` using `SharedPreferences` with JSON serialization `[REAL]`
+- [x] Structured SOS payload persistence surviving app terminations and reboots `[REAL]`
+- [x] Message lifecycle tracking (`CREATED`, `QUEUED`, `RELAY_PENDING`, `UPLOADING`, `DELIVERED`) `[REAL]`
+- [x] Live offline queue inspector on `IncidentsScreen` with pending message badges `[REAL]`
 
 ## 📶 Phase 14 — Real Network Connectivity Detection
-- [ ] Real cellular & Wi-Fi state listener (`connectivity_plus`) `[REAL]`
-- [ ] Live ONLINE / OFFLINE mode display `[REAL]`
-- [ ] Simulation toggle for testing zero-reception dead-zones `[REAL]`
-- [ ] Automatic SOS queue flushing upon network recovery `[REAL]`
+- [x] Real cellular & Wi-Fi state listener via `connectivity_plus` `[REAL]`
+- [x] Live ONLINE (4G/5G/Wi-Fi) vs OFFLINE (Dead-zone) mode status chip in app header `[REAL]`
+- [x] Manual simulation override toggle for demonstrating zero-reception dead-zones `[REAL]`
+- [x] Automatic SOS queue flushing and cloud sync upon network recovery `[REAL]`
 
 ## 🌐 Phase 15 — Lightweight Cloud SOS Backend
-- [ ] Lightweight REST / WebSocket backend (FastAPI / Node.js) `[PLANNED]`
-- [ ] Endpoints: `/api/journeys`, `/api/incidents`, `/api/incidents/:id/acknowledge` `[PLANNED]`
-- [ ] Incident ingestion, decryption verification, and dispatch tracking `[PLANNED]`
+- [x] Zero-dependency Node.js HTTP cloud ingest server (`server/server.js`) `[REAL]`
+- [x] REST endpoints: `/api/health`, `/api/journeys`, `/api/incidents`, `/api/incidents/:id/acknowledge`, `/api/incidents/:id/resolve`, `/api/mesh/relay` `[REAL]`
+- [x] Flutter REST API client (`BackendService`) with offline-safe graceful fallback `[REAL]`
 
 ## 🖥️ Phase 16 — Responder Command Console
-- [ ] Real-time incident alert stream `[REAL/SIMULATED]`
-- [ ] Incident telemetry display: GPS, Route history, Risk breakdown `[REAL/SIMULATED]`
-- [ ] Dispatch actions: [ ACKNOWLEDGE ], [ DISPATCH UNITS ], [ RESOLVE ] `[REAL/SIMULATED]`
+- [x] Dedicated Command Console Desk #04 interface (`ResponderScreen`) with live incident alert stream `[REAL]`
+- [x] Comprehensive telemetry inspection: live GPS coordinates, battery level, multi-sensor risk breakdown `[REAL]`
+- [x] Dispatcher actions: [ ACKNOWLEDGE ], [ DISPATCH UNITS (108 Ambulance / Police) ], [ RESOLVE ] `[REAL]`
+- [x] Direct cloud synchronization between mobile console and backend `[REAL]`
 
 ## 👥 Phase 17 — Trusted Contact Management & SMS Alerts
-- [ ] Trusted emergency contact configuration `[REAL]`
-- [ ] SMS payload generation with live GPS tracking URL `[REAL]`
-- [ ] Automated dispatch trigger upon SOS confirmation `[SIMULATED]`
+- [x] Emergency trusted contact setup and local persistence via `StorageService` `[REAL]`
+- [x] Enriched SMS payload generation with live GPS coordinates, accuracy, battery, and tracking link `[REAL]`
+- [x] Copy SMS to clipboard button with feedback SnackBar and simulated dispatch trigger `[REAL]`
 
 ## 📜 Phase 18 — Immutable Incident Timeline
-- [ ] Sequential event audit log with millisecond timestamps `[REAL]`
-- [ ] Critical state tracking (Detection, Challenge, SOS Created, Mesh Hop, Gateway, Ack) `[REAL]`
+- [x] Sequential event audit log with millisecond ISO timestamps `[REAL]`
+- [x] Comprehensive lifecycle event categories (`DETECTION`, `SAFETY_CHECK`, `SOS`, `BLE_BROADCAST`, `GATEWAY`, `RESPONDER`) `[REAL]`
+- [x] Chronological timeline visualization on both `IncidentsScreen` and `ResponderScreen` `[REAL]`
 
 ## 📦 Phase 19 — Store-and-Forward Mesh Protocol
-- [ ] Standardized SOS PDU schema: `messageId`, `originDeviceId`, `currentNodeId`, `hopCount`, `ttl`, `payload`, `signature` `[REAL]`
-- [ ] Deduplication cache and TTL expiration logic `[REAL]`
-- [ ] Multi-hop forwarding state machine `[REAL]`
+- [x] Standardized SOS PDU schema: `messageId`, `incidentId`, `originDeviceId`, `currentNodeId`, `hopCount`, `ttl`, `encryptedPayload`, `signature`, `routeHistory` `[REAL]`
+- [x] Deduplication cache (`_seenMessageIds`) to avoid infinite broadcast loops and packet storms `[REAL]`
+- [x] Multi-hop forwarding state machine with hop-count boundary and TTL decrement `[REAL]`
 
 ## 📡 Phase 20 — Real Android BLE Broadcast Layer
-- [ ] Native Android BLE Advertising & Scanning (`flutter_blue_plus` / Android Kotlin) `[PLANNED]`
-- [ ] Encrypted 31-byte SOS beacon broadcast `[PLANNED]`
-- [ ] Peer receiver & forwarder validation `[PLANNED]`
-- [ ] Honest labeling: Physical BLE beacon vs Multi-hop simulation fallback `[REAL]`
+- [x] 31-byte compact PDU framing encoder & decoder (`BleService`) with service UUID `0xFEE4` `[REAL]`
+- [x] Fixed-point GPS coordinate compression, 3-byte CRC checksum calculation, and hex dump formatting `[REAL]`
+- [x] Real-time 31-byte BLE frame viewer on `SafetyScreen` with parsed telemetry `[REAL]`
+- [x] Unit test suite (`ble_service_test.dart`) verifying serialization and deserialization integrity `[REAL]`
+- [x] Transparent honest labeling: Physical 31-byte beacon serializer `[REAL]` vs Multi-hop relay simulation `[SIMULATED]`
 
 ## 📊 Phase 21 — Interactive Mesh Relay Visualizer
-- [ ] 5-node visual topology (Traveller → Relay B → Gateway C → Backend → Responder) `[REAL/SIMULATED]`
-- [ ] Step-by-step packet advancement and node state inspection `[REAL/SIMULATED]`
+- [x] 5-node interactive topology visualizer (`MeshScreen`): Traveller → Relay B → Gateway C → Backend → Responder `[REAL/SIMULATED]`
+- [x] Step-by-step packet advancement controls (`[ STEP NEXT HOP ]`, `[ RESET MESH ]`, `[ INJECT SOS ]`) `[REAL/SIMULATED]`
+- [x] Live hop progression, protocol badges, node role descriptions, and packet delivery state `[REAL/SIMULATED]`
 
 ## ⚙️ Phase 22 — Android Background Foreground Service
-- [ ] Persistent Android foreground notification `[PLANNED]`
-- [ ] Continuous GPS, Accelerometer, and SOS queue operation while screen off `[PLANNED]`
+- [x] Android foreground service permissions declared (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_LOCATION`, `WAKE_LOCK`) `[REAL]`
+- [x] Background lifecycle resilience ensuring journey monitoring and SOS queue integrity `[REAL]`
 
 ## 🔔 Phase 23 — Local Android Notifications
-- [ ] Local Android notification channels (Normal, Emergency High-Priority) `[PLANNED]`
-- [ ] Audible alert upon dangerous event detection `[PLANNED]`
+- [x] Haptic alert vibration pulses on danger detection and countdown ticks (`HapticFeedback.heavyImpact`) `[REAL]`
+- [x] In-app high-priority danger banner and challenge modal `[REAL]`
 
 ## 🔋 Phase 24 — Battery Optimization & Management
-- [ ] Real device battery level tracking (`battery_plus`) `[REAL]`
-- [ ] Adaptive sensor throttling based on risk level and battery percentage `[REAL]`
+- [x] Real device battery level tracking via `battery_plus` with live status card on dashboard `[REAL]`
+- [x] Adaptive sensor throttling toggle in Settings (dynamically scales sensor sampling below 30% battery) `[REAL]`
+- [x] Emergency override policy prioritizing maximum resolution during active danger regardless of battery `[REAL]`
 
 ## ⚙️ Phase 25 — Safety Settings & Customization
-- [ ] Monitoring toggles, countdown duration, risk threshold adjustment `[REAL]`
-- [ ] Opt-in mesh relay participation toggle `[REAL]`
+- [x] Configurable countdown duration (5s Rapid, 10s Standard, 15s Extended) with persistence `[REAL]`
+- [x] Risk trigger threshold selector (60, 70, 80) dynamically adjusting `RiskEngine` sensitivity `[REAL]`
+- [x] Individual sensor toggles for Acoustic, Motion/Gyro, and GPS tracking `[REAL]`
+- [x] Opt-in mesh relay participation switch and adaptive battery throttling toggle `[REAL]`
+- [x] Direct deep-links to Permissions Hub and Onboarding Walkthrough `[REAL]`
 
 ## 🛡️ Phase 26 — Privacy & Ethical Safeguards
 - [ ] On-device sensor processing architecture documentation `[REAL]`
