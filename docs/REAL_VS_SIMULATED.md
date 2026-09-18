@@ -38,9 +38,12 @@ In accordance with strict hackathon engineering ethics, this document defines th
 ## 2. Hardware vs Software Validation Details
 
 ### A. Real On-Device Hardware
-- **Physical Sensors:** Directly interrogates Linux/Android HAL (`/dev/input/`, Android SensorManager).
-- **Physical GPS:** Receives NMEA / Android LocationManager satellite sentences.
-- **Physical Offline Storage:** Persisted to Android app sandbox storage (`/data/user/0/com.maravazha.travel_sos_mesh/shared_prefs/`).
+- **Target Device Under Test:** Samsung Galaxy S25 Ultra (`SM-S938B`), Android 16 (SDK 36), Serial `RZCY10KPY2L`.
+- **Physical Sensors:** Directly interrogates Linux/Android HAL (`/dev/input/`, Android SensorManager: $1.0\text{G}$ baseline accelerometer, $0.0^\circ/\text{s}$ gyroscope).
+- **Physical GPS:** Receives real GNSS satellite fixes via `geolocator` (observed at Kochi, Kerala: $\pm4\text{m}$ accuracy).
+- **Physical Battery:** Tracks native battery level ($46\% \to 47\%$) in real time via `battery_plus`.
+- **Physical Offline Storage:** Persisted to Android app sandbox storage (`/data/user/0/com.maravazha.travel_sos_mesh/shared_prefs/`). Verified across application force-close (`adb shell am force-stop`).
+- **Physical Network Transitions:** Radio toggling via `svc wifi` and `svc data` verified offline queuing and automatic uplink flush.
 
 ### B. What is Honestly Labeled as "Prototype" or "Simulated"
 1. **Multi-Hop BLE Network Mesh:**

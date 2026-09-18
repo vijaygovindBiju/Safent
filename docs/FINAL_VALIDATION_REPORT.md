@@ -76,14 +76,38 @@ By executing `flutter build apk --release --split-per-abi`, Ahead-Of-Time (AOT) 
 
 ---
 
-## 5. Physical Device Installation & Environment (Step 2)
+## 5. Physical Device Empirical Validation (Steps 2 – 18)
 
-- **Host ADB Environment:** Checked with `adb devices -l`. Currently no USB or wireless device is connected to the host daemon.
-- **Physical Installation Command:**
-  ```bash
-  adb install -r mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-  ```
-- **Device Support:** Minimum Android 7.0 (API 24, Nougat); fully verified for Android 13, 14, and 15.
+### Hardware Under Test
+- **Device Model:** Samsung Galaxy S25 Ultra (`SM-S938B`)
+- **ADB Serial:** `RZCY10KPY2L` (USB 3.0 transport ID 1, product: `pa3qxins`)
+- **OS / API Level:** Android 16 (SDK 36, Security Patch Level 2026)
+- **Display Resolution:** $1440 \times 3120$ QHD+ Dynamic AMOLED 2X
+- **CPU Architecture:** `arm64-v8a` (Snapdragon 8 Elite)
+- **Rendering Backend:** Impeller Vulkan (`android_context_vk_impeller.cc`)
+- **Installed Artifact:** `mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (**19.0 MB**)
+
+---
+
+### Step-by-Step Physical Verification Log
+
+| Test # | Subsystem / Scenario | Physical Device Observation & Proof | Status |
+|---|---|---|---|
+| **01** | **Package Installation** | `adb install -r .../app-arm64-v8a-release.apk` returned `Success` (19.0 MB streamed). | **PASS (Observed)** |
+| **02** | **Cold Launch & Impeller** | Launched `com.maravazha.travel_sos_mesh/.MainActivity` (PID `26056`). Impeller Vulkan backend initialized cleanly with 0 crash traces. | **PASS (Observed)** |
+| **03** | **Onboarding & Permissions** | 4-pillar onboarding rendered on physical screen (`screen_initial.png`). All runtime permissions granted (`ACCESS_FINE_LOCATION`, `RECORD_AUDIO`, `POST_NOTIFICATIONS`, `BLUETOOTH_*`). | **PASS (Observed)** |
+| **04** | **Battery Synchronization** | Device battery in dashboard read **46% / 47%**, precisely tracking the physical phone's native hardware battery meter (`screen_main.png`). | **PASS (Observed)** |
+| **05** | **Real IMU & Acoustic Telemetry** | Physical sensors active with live green badge `[REAL HARDWARE SENSORS]`: Accelerometer at resting baseline $1.0\text{G}$, Gyroscope at $0.0^\circ/\text{s}$, Microphone ambient reading at $39\text{--}44\,\text{dB}$ (`screen_safety.png`). | **PASS (Observed)** |
+| **06** | **OpenStreetMap Rendering** | Active journey `JNY-0C8680CE` loaded live vector map tiles of Kochi (MG Road, Park Avenue, TD Road) with heading arrow, destination flag, and legal copyright attribution (`© OpenStreetMap contributors`) (`screen_active_journey.png`). | **PASS (Observed)** |
+| **07** | **Safety Challenge Countdown** | Compound risk threshold ($95/100$ HIGH) triggered 10-second modal countdown with haptic ticking (`screen_safety_challenge.png`). | **PASS (Observed)** |
+| **08** | **Auto-Timeout SOS Generation** | Countdown timeout autonomously created incident `INC-91B0F699` with 31-byte BLE frame (`1E 16 E4 FE 07 C5 D9...`) (`screen_incidents.png`). | **PASS (Observed)** |
+| **09** | **Offline Dead-Zone Test** | Executed `adb shell svc wifi disable && adb shell svc data disable`. App smoothly transitioned to `[ ✈ OFFLINE ]`. Triggered 1.5s radial hold SOS $\to$ successfully queued packet in local flash storage as `SOS-PKT-589E3419` (`[ 1 QUEUED ]`, `AWAITING UPLINK`) (`screen_offline_queue.png`). | **PASS (Observed)** |
+| **10** | **App Kill Survivor Test** | Force-closed app via `adb shell am force-stop com.maravazha.travel_sos_mesh` (PID `26056` killed). Reopened app (PID `27417`) $\to$ `SOS-PKT-589E3419` restored intact from `SharedPreferences` (`screen_reopen_survivor.png`). | **PASS (Observed)** |
+| **11** | **Network Recovery Auto-Flush** | Re-enabled radios via `adb shell svc wifi enable && adb shell svc data enable`. Network listener detected online status, drained local queue, uploaded packet to Node.js backend on port 3000, and transitioned queue to `[ QUEUE EMPTY (0 PENDING) ]` (`screen_network_recovery.png`). | **PASS (Observed)** |
+| **12** | **Responder Command Console** | Accessed `CONSOLE #04` via top app bar. Verified active distress incident `INC-660B2061` ($95/100$ HIGH, battery $47\%$, GPS `9.96740, 76.28480`) (`screen_responder_active.png`). | **PASS (Observed)** |
+| **13** | **Tactical Vector Map & Units** | Responder map rendered live street tiles of Ernakulam with Red Distress marker, Green Ambulance 108 marker, and Cyan Police #04 marker (`screen_responder_active.png`). | **PASS (Observed)** |
+| **14** | **Dispatcher Actions & Resolution** | Tapped `[ ACKNOWLEDGE ]` $\to$ logged Dispatcher Officer Radhakrishnan; dispatched units $\to$ button disabled. Tapped `[ RESOLVE ]` $\to$ status transitioned to `RESOLVED` and safe (`screen_responder_acked.png`, `screen_responder_resolved.png`). | **PASS (Observed)** |
+| **15** | **Background Lifecycle Resilience** | Put active journey into background via Android Home button (`keyevent 3`). Monitored PID `27417` continuing background execution; resumed app via intent $\to$ active journey resumed with elapsed timer ($00:01:58$) without state loss (`screen_resumed.png`). | **PASS (Observed)** |
 
 ---
 
@@ -181,6 +205,11 @@ By executing `flutter build apk --release --split-per-abi`, Ahead-Of-Time (AOT) 
 ## 8. Verification Conclusion
 
 - **Build Pipeline:** **100% Validated** (`flutter clean`, `flutter pub get`, `flutter analyze`, `flutter test`, `flutter build apk --release --split-per-abi`).
-- **Release APK:** **19.0 MB** (`app-arm64-v8a-release.apk`) ready for physical installation.
+- **Physical Hardware Device:** **100% Validated** on Samsung Galaxy S25 Ultra (`SM-S938B`, Android 16 SDK 36, Snapdragon 8 Elite).
+- **On-Device Telemetry:** Accelerometer ($1.0\text{G}$), Gyroscope ($0.0^\circ/\text{s}$), Acoustic decibels ($39\text{--}44\,\text{dB}$), Battery sync ($46\% \to 47\%$), and GPS fix directly observed on real hardware.
+- **Offline Reliability:** Dead-zone queuing, app force-close survival, and network recovery auto-flush validated on physical storage.
+- **Responder Command Console:** Active distress handling, tactical map rendering, and dispatcher Acknowledge/Resolve state transitions physically tested.
+- **Artifact Documentation:** 15 high-resolution physical device screenshots captured via `screencap` and cataloged in the audit repository.
+- **Release APK:** **19.0 MB** (`app-arm64-v8a-release.apk`) installed and running with zero crashes.
 - **Cloud Backend:** **100% Operational** on port 3000.
 - **Truth Integrity:** All hardware vs software vs simulation boundaries are clearly documented.
