@@ -30,10 +30,12 @@ export interface Journey {
   destination: string;
   journeyName: string;
   startTime: string;
+  elapsedSeconds: number;
   status: 'SCHEDULED' | 'ACTIVE' | 'DANGER_SUSPECTED' | 'SOS_TRIGGERED' | 'COMPLETED' | 'CANCELLED';
   networkStatus: NetworkStatus;
   location: LocationCoordinates;
   battery: number;
+  nearbyRelayCount: number;
   trustedContact: TrustedContact;
   monitoringEnabled: {
     audio: boolean;
@@ -48,8 +50,15 @@ export interface RiskFusionScore {
   suddenRotation: number;    // e.g. +20
   lateNightContext: number;  // e.g. +10
   totalScore: number;        // 95 / 100
+  confidences: {
+    impact: number;          // e.g. 96%
+    audio: number;           // e.g. 88%
+    rotation: number;        // e.g. 92%
+    context: number;         // e.g. 99%
+  };
   level: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
   detectedAt: string;
+  isSimulated: boolean;
 }
 
 export interface SensorTelemetry {
@@ -59,6 +68,7 @@ export interface SensorTelemetry {
   speedKmh: number;
   isNightTime: boolean;
   lastAnomalyType?: string;
+  isSimulated: boolean;
 }
 
 export type IncidentStatus = 
@@ -89,6 +99,7 @@ export interface Incident {
   acknowledgedBy?: string;
   acknowledgedAt?: string;
   responderNotes?: string;
+  isSimulated: boolean;
 }
 
 export type MeshNodeType = 'TRAVELLER' | 'RELAY' | 'GATEWAY' | 'BACKEND' | 'RESPONDER';
@@ -109,10 +120,21 @@ export interface MeshNode {
   protocol: 'BLE_5.2_ADVERTISEMENT' | 'WIFI_AWARE' | 'HTTPS_REST' | 'WEBSOCKET_PUSH';
 }
 
+export interface RouteHopRecord {
+  nodeId: string;
+  nodeName: string;
+  timestamp: string;
+  hopIndex: number;
+  protocol: string;
+  latencyMs: number;
+  actionTaken: string;
+}
+
 export interface SOSMessage {
   id: string;
   incidentId: string;
   originDevice: string;
+  originId: string;
   currentNode: string;
   hopCount: number;
   maxHops: number;
@@ -121,14 +143,10 @@ export interface SOSMessage {
   status: 'PENDING_DISCOVERY' | 'RELAYING' | 'GATEWAY_UPLOADING' | 'DELIVERED_TO_BACKEND' | 'RESPONDER_ALERTED';
   encryptedPayload: string;
   payloadSizeKb: number;
-  routeHistory: Array<{
-    nodeId: string;
-    nodeName: string;
-    timestamp: string;
-    hopIndex: number;
-    protocol: string;
-    latencyMs: number;
-  }>;
+  signature: string;
+  deduplicationHash: string;
+  isSimulated: boolean;
+  routeHistory: RouteHopRecord[];
 }
 
 export interface IncidentTimelineEvent {
@@ -139,12 +157,4 @@ export interface IncidentTimelineEvent {
   description: string;
   category: 'DETECTION' | 'ASSESSMENT' | 'SAFETY_CHECK' | 'SOS' | 'MESH' | 'GATEWAY' | 'RESPONDER';
   severity: 'INFO' | 'WARNING' | 'CRITICAL' | 'SUCCESS';
-}
-
-export interface DemoStep {
-  stepIndex: number;
-  label: string;
-  description: string;
-  durationMs: number;
-  action: () => void;
 }

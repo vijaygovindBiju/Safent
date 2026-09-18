@@ -17,7 +17,9 @@ import {
   ArrowRight,
   Sparkles,
   ShieldCheck,
-  MessageSquare
+  MessageSquare,
+  AlertOctagon,
+  Check
 } from 'lucide-react';
 import { useSafety } from '../../context/SafetyContext';
 import { IncidentTimeline } from '../common/IncidentTimeline';
@@ -37,7 +39,7 @@ export const ResponderDashboardScreen: React.FC = () => {
   const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
 
   const handleDispatchUnits = () => {
-    setDispatchStatus("Ambulance 108 & Kochi Police Patrol Unit #04 dispatched to MG Road Metro Station (ETA 4 mins).");
+    setDispatchStatus("Ambulance 108 & Kochi Police Patrol Unit #04 dispatched to MG Road Metro Station (ETA 4 mins) [Simulated Dispatch].");
   };
 
   const isDelivered = incident && (incident.status === 'DELIVERED' || incident.status === 'RESPONDER_NOTIFIED' || incident.status === 'ACKNOWLEDGED' || incident.status === 'RESOLVED');
@@ -70,12 +72,12 @@ export const ResponderDashboardScreen: React.FC = () => {
         {/* Live Operational Status */}
         <div className="flex items-center gap-3">
           <div className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
-            <span className="text-slate-500 block text-[10px]">DISPATCH OPERATOR</span>
+            <span className="text-slate-500 block text-[10px]">OPERATOR ON DUTY</span>
             <span className="text-slate-200 font-bold">Officer Radhakrishnan</span>
           </div>
 
           <div className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
-            <span className="text-slate-500 block text-[10px]">ACTIVE QUEUE</span>
+            <span className="text-slate-500 block text-[10px]">INCIDENTS QUEUE</span>
             <span className="text-rose-400 font-bold">{incident ? '1 CRITICAL' : '0 PENDING'}</span>
           </div>
         </div>
@@ -89,7 +91,7 @@ export const ResponderDashboardScreen: React.FC = () => {
           </div>
           <h3 className="text-lg font-bold text-white">All Clear — No Active Emergency Signals</h3>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            The Safety Response Center is listening for peer-relayed emergency beacons. You can simulate an incident from the Traveller view or run the full demo.
+            The Safety Response Center is listening for peer-relayed emergency beacons. You can simulate an incident from the Traveller view or run the full automated demo.
           </p>
           <div className="flex justify-center gap-3 pt-2">
             <button
@@ -103,7 +105,7 @@ export const ResponderDashboardScreen: React.FC = () => {
       ) : (
         <div className="space-y-6">
           
-          {/* Main Active Incident Card (Requested in specification) */}
+          {/* Main Active Incident Card */}
           <div className={`rounded-3xl border p-6 sm:p-8 shadow-2xl transition-all ${
             isAcknowledged 
               ? 'bg-[#0f1826] border-emerald-600/80 shadow-emerald-950/30'
@@ -118,7 +120,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                     SEVERITY: HIGH
                   </span>
                   <span className="text-xs font-mono text-slate-400">
-                    ID: {incident.id}
+                    {incident.id}
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
                     isAcknowledged
@@ -133,7 +135,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                 </h2>
               </div>
 
-              {/* Action Buttons */}
+              {/* 3 Core Action Buttons: ACKNOWLEDGE, DISPATCH, RESOLVE */}
               <div className="flex flex-wrap items-center gap-2">
                 {!isAcknowledged ? (
                   <button
@@ -141,20 +143,20 @@ export const ResponderDashboardScreen: React.FC = () => {
                     className="flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950/50 active:scale-95 transition-all"
                   >
                     <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                    <span>ACKNOWLEDGE INCIDENT</span>
+                    <span>ACKNOWLEDGE</span>
                   </button>
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs font-mono font-bold">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ACKNOWLEDGED BY RADHAKRISHNAN
+                      ACKNOWLEDGED
                     </span>
                     <button
                       onClick={resolveIncident}
                       disabled={incident.status === 'RESOLVED'}
                       className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs font-semibold border border-slate-700 transition-all"
                     >
-                      {incident.status === 'RESOLVED' ? 'RESOLVED' : 'Mark Resolved'}
+                      {incident.status === 'RESOLVED' ? 'RESOLVED' : 'RESOLVE INCIDENT'}
                     </button>
                   </div>
                 )}
@@ -180,7 +182,7 @@ export const ResponderDashboardScreen: React.FC = () => {
               <div className="p-3.5 rounded-2xl bg-[#0a0d16] border border-slate-800">
                 <span className="text-slate-500 block text-[10px] font-mono uppercase">SEVERITY</span>
                 <span className="font-black text-sm text-red-400 font-mono">HIGH (95 / 100)</span>
-                <span className="text-[10px] text-red-400/80 block font-mono">Multi-Sensor Crash</span>
+                <span className="text-[10px] text-red-400/80 block font-mono">Multi-Sensor Spike</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[#0a0d16] border border-slate-800">
@@ -197,16 +199,16 @@ export const ResponderDashboardScreen: React.FC = () => {
 
             </div>
 
-            {/* Quick Dispatch Unit Trigger */}
+            {/* Dispatch Units Action Section */}
             <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Car className="w-5 h-5 text-amber-400 shrink-0" />
                 <div>
                   <span className="text-xs font-bold text-slate-200 block">
-                    Rapid Emergency Dispatch Integration
+                    Emergency Unit Vectoring
                   </span>
                   <span className="text-[11px] text-slate-400">
-                    {dispatchStatus || "Immediate GPS vectoring for Ambulance 108 and nearest Kochi traffic patrol unit."}
+                    {dispatchStatus || "Simulated integration with Ambulance 108 and nearest traffic patrol dispatch."}
                   </span>
                 </div>
               </div>
@@ -219,15 +221,16 @@ export const ResponderDashboardScreen: React.FC = () => {
                   DISPATCH UNITS (108 / POLICE)
                 </button>
               ) : (
-                <span className="text-xs font-mono text-emerald-400 font-bold px-3 py-1 rounded bg-emerald-950/80 border border-emerald-800">
-                  DISPATCH ACTIVE (ETA 4 MINS)
+                <span className="text-xs font-mono text-emerald-400 font-bold px-3 py-1 rounded bg-emerald-950/80 border border-emerald-800 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5" />
+                  UNITS DISPATCHED (ETA 4 MINS)
                 </span>
               )}
             </div>
 
           </div>
 
-          {/* Sub-Tabs: Detailed Analysis / Audit Timeline / Trusted Contact Simulator */}
+          {/* Sub-Tabs: Relay Route Audit / Incident Timeline / Trusted Contact Simulator */}
           <div className="space-y-4">
             
             <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
@@ -239,7 +242,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Relay Hop Audit & Encryption
+                Relay Hop Route & Integrity
               </button>
 
               <button
@@ -250,7 +253,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Microsecond Event Timeline ({timeline.length})
+                Incident Timeline ({timeline.length})
               </button>
 
               <button
@@ -272,7 +275,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                 {/* Relay Hop Breakdown */}
                 <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-4">
                   <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider font-mono">
-                    Multi-Hop Store-and-Forward Path
+                    Store-and-Forward Route Path
                   </h3>
                   
                   <div className="space-y-3">
@@ -299,16 +302,16 @@ export const ResponderDashboardScreen: React.FC = () => {
                         <span>GATEWAY: Gateway Phone C</span>
                         <span>+220ms</span>
                       </div>
-                      <div className="text-slate-400 text-[11px]">Peer: Pedestrian with Jio/Airtel 5G reception</div>
+                      <div className="text-slate-400 text-[11px]">Peer: Pedestrian with active 5G reception</div>
                       <div className="text-slate-500 text-[10px]">Protocol: Wi-Fi Aware / HTTPS REST Gateway Upload</div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 text-xs font-mono space-y-1">
                       <div className="flex justify-between text-cyan-400 font-bold">
-                        <span>DESTINATION: Cloud Ingest & Responder</span>
+                        <span>DESTINATION: Cloud Ingest & Console</span>
                         <span>+85ms</span>
                       </div>
-                      <div className="text-slate-400 text-[11px]">Cluster: AWS Mumbai ap-south-1 SOS Ingestion Node</div>
+                      <div className="text-slate-400 text-[11px]">Server: Cloud SOS Ingestion Node</div>
                       <div className="text-slate-500 text-[10px]">Protocol: WebSocket Push to Dispatch Desk #04</div>
                     </div>
                   </div>
@@ -317,24 +320,24 @@ export const ResponderDashboardScreen: React.FC = () => {
                 {/* Cryptographic Verification */}
                 <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-4">
                   <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider font-mono">
-                    Cryptographic Signature & Integrity
+                    Integrity & Payload Decryption
                   </h3>
 
                   <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 space-y-2 text-xs font-mono">
-                    <div className="text-slate-500">PAYLOAD ENCRYPTION SCHEME:</div>
-                    <div className="text-cyan-400 font-bold">AES-GCM-256 Authenticated Encryption</div>
+                    <div className="text-slate-500">PROPOSED ENCRYPTION:</div>
+                    <div className="text-cyan-400 font-bold">AES-GCM-256 Public-Key Envelope</div>
 
-                    <div className="text-slate-500 pt-2">DIGITAL SIGNATURE HASH:</div>
+                    <div className="text-slate-500 pt-2">SIMULATED CIPHERTEXT DIGEST:</div>
                     <div className="text-slate-300 break-all text-[11px]">
                       {incident.encryptedHash}
                     </div>
 
-                    <div className="text-slate-500 pt-2">DECRYPTED TELEMETRY AT DISPATCH:</div>
-                    <div className="text-emerald-400 text-[11px] leading-relaxed">
-                      ✓ GPS Verified: 9.9674° N, 76.2848° E (MG Road Metro)<br />
+                    <div className="text-slate-500 pt-2">DECRYPTED DISPATCH TELEMETRY:</div>
+                    <div className="text-emerald-400 text-[11px] leading-relaxed font-sans">
+                      ✓ GPS Verified: 9.9674° N, 76.2848° E (MG Road Metro Station)<br />
                       ✓ Risk Score: 95/100 (HIGH IMPACT & ACOUSTIC SHATTER)<br />
                       ✓ Battery State: 78% remaining<br />
-                      ✓ Zero user response to 10s safety challenge
+                      ✓ Safety challenge timed out (no user cancellation)
                     </div>
                   </div>
 
@@ -383,7 +386,7 @@ export const ResponderDashboardScreen: React.FC = () => {
                   </div>
 
                   <div className="text-[10px] text-slate-500 text-right font-mono">
-                    ✓ Delivered via Gateway C 5G SMS Gateway
+                    ✓ Simulated delivery via Gateway C 5G cellular uplink
                   </div>
                 </div>
               </div>

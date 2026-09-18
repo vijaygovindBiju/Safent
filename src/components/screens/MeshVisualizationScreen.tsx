@@ -18,7 +18,11 @@ import {
   Cpu, 
   Smartphone,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Code2,
+  ChevronDown,
+  ChevronUp,
+  Info
 } from 'lucide-react';
 import { useSafety } from '../../context/SafetyContext';
 import { MeshNode } from '../../types';
@@ -36,6 +40,7 @@ export const MeshVisualizationScreen: React.FC = () => {
 
   const [isAutoStepping, setIsAutoStepping] = useState<boolean>(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string>("NODE-A");
+  const [showProtocolEngine, setShowProtocolEngine] = useState<boolean>(true);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -75,7 +80,7 @@ export const MeshVisualizationScreen: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-700 text-xs font-mono text-indigo-300 mb-2">
               <Network className="w-3.5 h-3.5" />
-              <span>STORE-AND-FORWARD MULTI-HOP PROTOCOL</span>
+              <span>STORE-AND-FORWARD MULTI-HOP ARCHITECTURE</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Interactive Mesh Relay Visualization
@@ -141,7 +146,7 @@ export const MeshVisualizationScreen: React.FC = () => {
           </div>
           <div className="p-2.5 rounded-xl bg-[#090d16] border border-slate-800 col-span-2 sm:col-span-1">
             <span className="text-slate-500 block text-[10px]">ENCRYPTION</span>
-            <span className="font-bold text-slate-200">AES-GCM-256</span>
+            <span className="font-bold text-slate-200">AES-256 (Simulated)</span>
           </div>
         </div>
       </div>
@@ -151,23 +156,14 @@ export const MeshVisualizationScreen: React.FC = () => {
         
         {/* SVG Interconnecting Mesh Lines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="gradientHopActive" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ef4444" />
-              <stop offset="50%" stopColor="#6366f1" />
-              <stop offset="100%" stopColor="#10b981" />
-            </linearGradient>
-          </defs>
-
-          {/* Desktop connecting lines */}
-          <line x1="12%" y1="50%" x2="31%" y2="50%" stroke={currentHopIndex >= 1 ? "#6366f1" : "#1e293b"} strokeWidth={currentHopIndex >= 1 ? "4" : "2"} strokeDasharray={currentHopIndex >= 1 ? "6 3" : "4 4"} className={currentHopIndex === 0 ? "mesh-path-active" : ""} />
-          <line x1="31%" y1="50%" x2="50%" y2="50%" stroke={currentHopIndex >= 2 ? "#10b981" : "#1e293b"} strokeWidth={currentHopIndex >= 2 ? "4" : "2"} strokeDasharray={currentHopIndex >= 2 ? "6 3" : "4 4"} className={currentHopIndex === 1 ? "mesh-path-active" : ""} />
-          <line x1="50%" y1="50%" x2="69%" y2="50%" stroke={currentHopIndex >= 3 ? "#0ea5e9" : "#1e293b"} strokeWidth={currentHopIndex >= 3 ? "4" : "2"} strokeDasharray={currentHopIndex >= 3 ? "6 3" : "4 4"} className={currentHopIndex === 2 ? "mesh-path-active" : ""} />
-          <line x1="69%" y1="50%" x2="88%" y2="50%" stroke={currentHopIndex >= 4 ? "#f43f5e" : "#1e293b"} strokeWidth={currentHopIndex >= 4 ? "4" : "2"} strokeDasharray={currentHopIndex >= 4 ? "6 3" : "4 4"} className={currentHopIndex === 3 ? "mesh-path-active" : ""} />
+          <line x1="10%" y1="50%" x2="30%" y2="50%" stroke={currentHopIndex >= 1 ? "#6366f1" : "#1e293b"} strokeWidth={currentHopIndex >= 1 ? "4" : "2"} strokeDasharray={currentHopIndex >= 1 ? "6 3" : "4 4"} className={currentHopIndex === 0 ? "mesh-path-active" : ""} />
+          <line x1="30%" y1="50%" x2="50%" y2="50%" stroke={currentHopIndex >= 2 ? "#10b981" : "#1e293b"} strokeWidth={currentHopIndex >= 2 ? "4" : "2"} strokeDasharray={currentHopIndex >= 2 ? "6 3" : "4 4"} className={currentHopIndex === 1 ? "mesh-path-active" : ""} />
+          <line x1="50%" y1="50%" x2="70%" y2="50%" stroke={currentHopIndex >= 3 ? "#0ea5e9" : "#1e293b"} strokeWidth={currentHopIndex >= 3 ? "4" : "2"} strokeDasharray={currentHopIndex >= 3 ? "6 3" : "4 4"} className={currentHopIndex === 2 ? "mesh-path-active" : ""} />
+          <line x1="70%" y1="50%" x2="90%" y2="50%" stroke={currentHopIndex >= 4 ? "#f43f5e" : "#1e293b"} strokeWidth={currentHopIndex >= 4 ? "4" : "2"} strokeDasharray={currentHopIndex >= 4 ? "6 3" : "4 4"} className={currentHopIndex === 3 ? "mesh-path-active" : ""} />
         </svg>
 
         {/* 5 Mesh Nodes in visual pipeline */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10 my-auto">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative z-10 my-auto">
           
           {meshNodes.map((node, index) => {
             const isOrigin = node.type === 'TRAVELLER';
@@ -272,19 +268,91 @@ export const MeshVisualizationScreen: React.FC = () => {
           </div>
 
           <div>
-            Click any node card to inspect its MAC address, protocol & payload state.
+            Click any node card to inspect its simulated MAC address, protocol & payload state.
           </div>
         </div>
 
       </div>
 
-      {/* Deep-Dive Inspector: Selected Node Specifications */}
+      {/* Phase 10: Store-and-Forward Mesh Protocol Engine & Schema Panel */}
+      <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <Code2 className="w-4 h-4 text-cyan-400" />
+            <h3 className="font-bold text-sm text-slate-200 uppercase font-mono tracking-wide">
+              Store-and-Forward Protocol Engine & Packet Schema
+            </h3>
+          </div>
+          <button
+            onClick={() => setShowProtocolEngine(!showProtocolEngine)}
+            className="text-slate-400 hover:text-white text-xs font-mono flex items-center gap-1"
+          >
+            <span>{showProtocolEngine ? 'Collapse' : 'Expand'}</span>
+            {showProtocolEngine ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showProtocolEngine && (
+          <div className="space-y-4">
+            
+            {/* 6 Step Protocol Lifecycle */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-xs font-mono">
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">1. RECEIVES</span>
+                <span className="text-[11px] text-slate-400 font-sans">Listens on BLE advertisement channel</span>
+              </div>
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">2. VALIDATES</span>
+                <span className="text-[11px] text-slate-400 font-sans">Checks cryptographic signature</span>
+              </div>
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">3. DEDUPES</span>
+                <span className="text-[11px] text-slate-400 font-sans">Rejects duplicate message_id cache</span>
+              </div>
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">4. DECREMENTS</span>
+                <span className="text-[11px] text-slate-400 font-sans">TTL = TTL - 1 (Prevents broadcast storm)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">5. FORWARDS</span>
+                <span className="text-[11px] text-slate-400 font-sans">Re-broadcasts or initiates 5G upload</span>
+              </div>
+              <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
+                <span className="text-cyan-400 font-bold block mb-1">6. RECORDS</span>
+                <span className="text-[11px] text-slate-400 font-sans">Logs delivery state & purges on ACK</span>
+              </div>
+            </div>
+
+            {/* Conceptual Packet JSON Schema Display */}
+            <div className="p-4 rounded-xl bg-[#090d16] border border-slate-800 text-xs font-mono">
+              <div className="text-slate-500 mb-2">// Conceptual Mesh Distress PDU Schema (Under 255 bytes BLE limit):</div>
+              <pre className="text-slate-300 overflow-x-auto leading-relaxed">
+{`{
+  "message_id": "${sosMessage?.id || 'SOS-PKT-884291'}",
+  "origin_id": "DEVICE-A-F4B85E",
+  "current_node": "${meshNodes[currentHopIndex]?.id || 'NODE-A'}",
+  "hop_count": ${currentHopIndex},
+  "ttl": ${sosMessage?.ttl || 300},
+  "timestamp": "${sosMessage?.timestamp || '22:47:03'}",
+  "payload": "${sosMessage?.encryptedPayload.slice(0, 45) || 'AES-GCM-256:7f90e1c28834a9b...'}...",
+  "signature": "${sosMessage?.signature || 'ED25519-SIG:9b20e184...'}"
+}`}
+              </pre>
+            </div>
+
+          </div>
+        )}
+
+      </div>
+
+      {/* Selected Node Deep-Dive Inspector */}
       <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 mb-4">
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-cyan-400" />
-            <h3 className="font-bold text-sm text-slate-200 tracking-wide uppercase">
-              Node Deep-Dive Inspector: {selectedNode.name}
+            <h3 className="font-bold text-sm text-slate-200 tracking-wide uppercase font-mono">
+              Node Inspector: {selectedNode.name}
             </h3>
           </div>
           <span className="text-xs font-mono text-cyan-300 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-800">
@@ -301,7 +369,7 @@ export const MeshVisualizationScreen: React.FC = () => {
           <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800">
             <span className="text-slate-500 block mb-1">SIGNAL STRENGTH (RSSI)</span>
             <span className="text-emerald-400 font-bold">
-              {selectedNode.signalStrengthDbm ? `${selectedNode.signalStrengthDbm} dBm` : 'Cloud Socket (0ms)'}
+              {selectedNode.signalStrengthDbm ? `${selectedNode.signalStrengthDbm} dBm` : 'Cloud Link (0ms)'}
             </span>
           </div>
 
@@ -314,7 +382,7 @@ export const MeshVisualizationScreen: React.FC = () => {
         </div>
 
         <div className="mt-4 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 leading-relaxed font-sans">
-          <strong>Why this works without Internet:</strong> In the physical Android implementation, Node A sends non-connectable BLE 5.2 Extended Advertising packets containing 255 bytes of cryptographically compressed GPS, timestamp, and risk hashes. Node B receives these packets passively in the background and relays them. When Node C with active cellular data receives the broadcast, it immediately posts the packet to the cloud HTTPS endpoint.
+          <strong>Proposed Physical Stack:</strong> In an Android deployment, Node A uses <code className="text-cyan-400">BluetoothLeAdvertiser</code> in non-connectable mode. Node B detects the advertising PDU via passive BLE scanner without pairing. Node C with active cellular connectivity uploads the byte array to the HTTPS dispatch gateway.
         </div>
       </div>
 

@@ -13,7 +13,11 @@ import {
   Flame,
   CheckCircle2,
   PhoneCall,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  Users,
+  Shield,
+  Info
 } from 'lucide-react';
 import { useSafety } from '../../context/SafetyContext';
 import { SimulatedMap } from '../common/SimulatedMap';
@@ -61,6 +65,13 @@ export const ActiveJourneyScreen: React.FC = () => {
     };
   }, []);
 
+  const formatDuration = (totalSeconds: number) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6 space-y-6">
       
@@ -69,7 +80,7 @@ export const ActiveJourneyScreen: React.FC = () => {
         
         {/* Journey Identity & Status */}
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-emerald-950/40">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-emerald-950/40">
             <Radio className="w-6 h-6 animate-pulse" />
           </div>
           <div>
@@ -78,11 +89,11 @@ export const ActiveJourneyScreen: React.FC = () => {
                 LIVE JOURNEY
               </span>
               <span className="text-xs text-slate-400 font-mono">
-                ID: {journey.id}
+                {journey.id}
               </span>
             </div>
             <h2 className="text-xl font-bold text-white tracking-tight mt-0.5">
-              Destination: {journey.destination}
+              Target: {journey.destination}
             </h2>
           </div>
         </div>
@@ -90,13 +101,14 @@ export const ActiveJourneyScreen: React.FC = () => {
         {/* Telemetry Pills */}
         <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono">
           
-          {/* Journey Status */}
+          {/* Duration Ticker */}
           <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
-            <span className="text-slate-500">Status:</span>
-            <span className="text-emerald-400 font-bold">{journey.status}</span>
+            <Clock className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-slate-500">Duration:</span>
+            <span className="text-white font-bold">{formatDuration(journey.elapsedSeconds)}</span>
           </div>
 
-          {/* Network Status & Switcher */}
+          {/* Network Switcher Pill */}
           <button
             onClick={toggleNetwork}
             title="Click to toggle between Online cellular and Offline mesh-only mode"
@@ -110,15 +122,56 @@ export const ActiveJourneyScreen: React.FC = () => {
             <span>Network: {networkStatus}</span>
           </button>
 
+          {/* Nearby Relay Devices Pill */}
+          <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{journey.nearbyRelayCount} Mesh Peers</span>
+          </div>
+
           {/* Battery */}
           <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
             <Battery className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Battery: {journey.battery}%</span>
+            <span>{journey.battery}%</span>
           </div>
 
         </div>
 
       </div>
+
+      {/* Prominent Offline / Mesh Callout (Phase 5 Requirement) */}
+      {networkStatus === 'OFFLINE' ? (
+        <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex items-center gap-2.5">
+            <WifiOff className="w-4 h-4 text-amber-400 shrink-0" />
+            <div>
+              <span className="text-amber-300 font-bold block">
+                INTERNET UNAVAILABLE — MESH RELAY ACTIVE
+              </span>
+              <span className="text-slate-400 text-[11px]">
+                Device is operating in late-night shadow mode. Peer discovery broadcasting via BLE 5.2.
+              </span>
+            </div>
+          </div>
+          <span className="text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-800 text-[11px] whitespace-nowrap">
+            ● 2 Nearby Peers in Range (35m)
+          </span>
+        </div>
+      ) : (
+        <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/80 flex items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex items-center gap-2.5">
+            <Wifi className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-emerald-300 font-bold">
+              CELLULAR DATA ACTIVE (5G) — Direct cloud ingestion active
+            </span>
+          </div>
+          <button 
+            onClick={toggleNetwork}
+            className="text-amber-400 underline underline-offset-2 hover:text-amber-300 text-[11px]"
+          >
+            Simulate Entering Shadow Zone (Go Offline)
+          </button>
+        </div>
+      )}
 
       {/* Main Grid: Map on Left / Controls on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -131,7 +184,7 @@ export const ActiveJourneyScreen: React.FC = () => {
             destination={journey.destination}
           />
 
-          {/* Tri-Sensor Live Telemetry Indicators (P0 Requirement) */}
+          {/* Tri-Sensor Monitoring Indicators */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             
             {/* Sensor 1: Audio */}
@@ -189,6 +242,10 @@ export const ActiveJourneyScreen: React.FC = () => {
             </div>
 
           </div>
+
+          <div className="text-[11px] text-slate-500 font-mono text-right">
+            * Telemetry metrics dynamically simulated for prototype demonstration.
+          </div>
         </div>
 
         {/* Right 1 Col: Emergency Actions & Safety Controls */}
@@ -205,7 +262,7 @@ export const ActiveJourneyScreen: React.FC = () => {
               <span>HOLD 1.5s</span>
             </div>
 
-            {/* Big Hold Button */}
+            {/* Radial Hold Button */}
             <div className="relative my-2">
               <svg className="w-36 h-36 -rotate-90">
                 <circle
@@ -237,7 +294,6 @@ export const ActiveJourneyScreen: React.FC = () => {
                 onTouchStart={startHold}
                 onTouchEnd={endHold}
                 onClick={() => {
-                  // Fallback for quick click
                   if (holdProgress === 0) triggerImmediateSOS();
                 }}
                 className="absolute inset-2 m-auto w-28 h-28 rounded-full bg-gradient-to-br from-red-600 to-rose-800 hover:from-red-500 hover:to-rose-700 active:scale-95 shadow-2xl shadow-red-900/60 flex flex-col items-center justify-center text-white select-none transition-all group focus:outline-none"
@@ -253,15 +309,15 @@ export const ActiveJourneyScreen: React.FC = () => {
             </p>
           </div>
 
-          {/* Action 2: Simulate Dangerous Event (P0 requirement) */}
+          {/* Action 2: Simulate Dangerous Event */}
           <div className="bg-[#0f1422] border border-amber-900/40 rounded-2xl p-5 shadow-xl space-y-3">
             <div className="flex items-center gap-2 text-amber-400 text-xs font-mono font-bold uppercase">
               <Flame className="w-4 h-4" />
-              <span>Hackathon Simulation Control</span>
+              <span>Simulate Incident</span>
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Simulate sudden vehicle crash impact (4.8G) combined with scream acoustic anomaly in late-night context.
+              Simulate sudden vehicle deceleration (4.8G) combined with scream acoustic spike in late-night context.
             </p>
 
             <button

@@ -6,13 +6,15 @@ import {
   Users, 
   ArrowRight, 
   Play, 
-  Layers, 
   Activity, 
   ChevronRight, 
   AlertTriangle,
   Lock,
   Cpu,
-  MapPin
+  Layers,
+  Shield,
+  EyeOff,
+  Clock
 } from 'lucide-react';
 import { useSafety } from '../../context/SafetyContext';
 
@@ -31,75 +33,88 @@ export const HomeScreen: React.FC = () => {
     <div className="max-w-6xl mx-auto space-y-8 py-6 px-4 sm:px-6">
       
       {/* Hero Mission Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#111726] to-[#0d121f] border border-slate-800 p-6 md:p-10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-[#0f1422] border border-slate-800 p-6 md:p-10 shadow-2xl">
         
-        {/* Subtle background mesh line decoration */}
-        <div className="absolute -right-16 -bottom-16 w-80 h-80 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -top-16 w-80 h-80 rounded-full bg-red-500/5 blur-3xl pointer-events-none" />
+        {/* Subtle background glow */}
+        <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
 
         <div className="max-w-3xl space-y-5 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-mono text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Late-Night Journey Safety Protocol • SC-03</span>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs font-mono text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Late-Night Journey Safety Companion • SC-03</span>
+            </div>
+            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-800">
+              Simulated Architecture Prototype
+            </span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
             Travel SOS Mesh
           </h1>
 
-          <p className="text-lg sm:text-xl font-medium text-slate-300 leading-relaxed">
-            "Your journey. Your safety. <span className="text-amber-400 font-bold underline decoration-amber-500/50 underline-offset-4">Even without a network.</span>"
+          <p className="text-xl sm:text-2xl font-bold text-slate-200 tracking-tight">
+            "Safety that works beyond the network."
           </p>
 
-          <p className="text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
-            When you enter zero-connectivity shadow zones late at night, your phone turns into an autonomous safety beacon. In emergencies, your SOS hops peer-to-peer across nearby participating phones until it reaches an internet-connected gateway.
-          </p>
+          {/* 5-second core explainer callout */}
+          <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-700/80 text-slate-300 text-sm leading-relaxed space-y-1">
+            <p className="font-semibold text-white">
+              The Problem & The Innovation:
+            </p>
+            <p className="text-slate-400 text-xs sm:text-sm">
+              If your phone loses Internet connectivity in late-night transit shadow zones, nearby participating devices can autonomously relay an emergency message toward an Internet-connected gateway.
+            </p>
+          </div>
 
           {/* Action CTAs */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
+            {/* Primary CTA */}
             <button
               onClick={() => setScreen('SETUP')}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-950 hover:bg-slate-200 font-bold text-sm transition-all shadow-lg hover:shadow-white/10 active:scale-95"
+              className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-slate-950 hover:bg-slate-200 font-bold text-sm transition-all shadow-lg hover:shadow-white/10 active:scale-95"
             >
-              <span>Start Journey</span>
+              <span>START JOURNEY</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
+            {/* Secondary CTA */}
             <button
               onClick={runFullDemo}
               disabled={isDemoRunning}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-white font-semibold text-sm border border-slate-700 transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-sm shadow-xl shadow-red-950/40 transition-all active:scale-95 disabled:opacity-50"
             >
-              <Play className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span>{isDemoRunning ? 'Running Demo...' : 'Try Interactive Demo (60s)'}</span>
+              <Play className="w-4 h-4 fill-current" />
+              <span>{isDemoRunning ? 'RUNNING 50s DEMO...' : 'RUN FULL SOS DEMO (50s)'}</span>
             </button>
 
             <button
               onClick={() => setScreen('RESPONDER')}
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/60 text-slate-300 font-medium text-sm border border-slate-800 transition-all"
+              className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold text-xs border border-slate-700 transition-all"
             >
-              <span>View Response Center</span>
+              <span>Response Center View</span>
               <ChevronRight className="w-4 h-4 text-slate-500" />
             </button>
           </div>
         </div>
 
-        {/* Live Architectural Concept Banner */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-5 gap-3 text-xs font-mono">
+        {/* Conceptual Mesh Pipe Overview */}
+        <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-5 gap-3 text-xs font-mono">
           <div className="bg-[#090d16] p-3 rounded-xl border border-slate-800">
-            <span className="text-slate-500 block mb-1">HOP 0</span>
+            <span className="text-slate-500 block text-[10px]">HOP 0</span>
             <span className="text-slate-200 font-bold">Traveller Phone A</span>
             <span className="text-red-400 block text-[10px] mt-0.5 font-sans">NO INTERNET</span>
           </div>
-          <div className="flex items-center justify-center text-slate-600">→ BLE 5.2 Mesh →</div>
+          <div className="flex items-center justify-center text-slate-600 font-sans text-[11px]">→ BLE 5.2 Mesh →</div>
           <div className="bg-[#090d16] p-3 rounded-xl border border-slate-800">
-            <span className="text-slate-500 block mb-1">HOP 1</span>
+            <span className="text-slate-500 block text-[10px]">HOP 1</span>
             <span className="text-slate-200 font-bold">Relay Phone B</span>
             <span className="text-amber-400 block text-[10px] mt-0.5 font-sans">Nearby Commuter</span>
           </div>
-          <div className="flex items-center justify-center text-slate-600">→ Wi-Fi Aware →</div>
+          <div className="flex items-center justify-center text-slate-600 font-sans text-[11px]">→ Wi-Fi Aware →</div>
           <div className="bg-[#090d16] p-3 rounded-xl border border-slate-800">
-            <span className="text-slate-500 block mb-1">HOP 2</span>
+            <span className="text-slate-500 block text-[10px]">HOP 2</span>
             <span className="text-slate-200 font-bold">Gateway Phone C</span>
             <span className="text-emerald-400 block text-[10px] mt-0.5 font-sans">Active 5G Cellular</span>
           </div>
@@ -107,7 +122,7 @@ export const HomeScreen: React.FC = () => {
 
       </div>
 
-      {/* 4 Core Status Cards (Requested in spec) */}
+      {/* 4 Core Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Card 1: Journey Status */}
@@ -118,7 +133,7 @@ export const HomeScreen: React.FC = () => {
               <Activity className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="text-xl font-bold text-white mb-1">
-              {journey.status === 'ACTIVE' ? 'Live & Monitored' : journey.status === 'SOS_TRIGGERED' ? 'SOS Dispatched' : 'Ready to Start'}
+              {journey.status === 'ACTIVE' ? 'Active & Monitored' : journey.status === 'SOS_TRIGGERED' ? 'SOS Dispatched' : 'Ready to Start'}
             </div>
             <p className="text-xs text-slate-400 font-mono">
               Dest: {journey.destination}
@@ -141,7 +156,7 @@ export const HomeScreen: React.FC = () => {
             </div>
             <div className="text-xl font-bold text-white mb-1 flex items-center gap-2">
               <span className={`w-2.5 h-2.5 rounded-full ${networkStatus === 'ONLINE' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
-              {networkStatus === 'ONLINE' ? 'Online LTE/5G' : 'Offline (Mesh Mode)'}
+              {networkStatus === 'ONLINE' ? 'Online (4G/5G)' : 'Offline (Mesh Mode)'}
             </div>
             <p className="text-xs text-slate-400">
               {networkStatus === 'ONLINE' ? 'Direct cloud dispatch enabled' : 'Zero-cellular shadow zone'}
@@ -166,7 +181,7 @@ export const HomeScreen: React.FC = () => {
               <ShieldCheck className="w-4 h-4 text-cyan-400" />
             </div>
             <div className="text-xl font-bold text-white mb-1">
-              Active Tri-Sensor
+              Tri-Sensor Active
             </div>
             <p className="text-xs text-slate-400">
               Audio + IMU Impact + GPS Context
@@ -174,7 +189,7 @@ export const HomeScreen: React.FC = () => {
           </div>
           <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
             <span className="text-slate-500">False-Positive Guard</span>
-            <span className="text-cyan-400 font-semibold font-mono">10s Verify</span>
+            <span className="text-cyan-400 font-semibold font-mono">10s Challenge</span>
           </div>
         </div>
 
@@ -186,72 +201,59 @@ export const HomeScreen: React.FC = () => {
               <Users className="w-4 h-4 text-indigo-400" />
             </div>
             <div className="text-xl font-bold text-white mb-1">
-              2 Mesh Peers
+              2 Participating Peers
             </div>
             <p className="text-xs text-slate-400">
-              BLE 5.2 / Wi-Fi Direct vicinity
+              BLE 5.2 / Wi-Fi Aware vicinity
             </p>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
             <span className="text-slate-500">Internet Gateway</span>
-            <span className="text-emerald-400 font-semibold font-mono">1 Peer Online</span>
+            <span className="text-emerald-400 font-semibold font-mono">1 Gateway Online</span>
           </div>
         </div>
 
       </div>
 
-      {/* Differentiator & Technical Architecture Overview */}
-      <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-lg font-bold text-white tracking-tight">
-              How Travel SOS Mesh Solves Late-Night Transit Blackouts
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Traditional safety apps fail the moment you enter an underground tunnel, rural stretch, or cellar shadow zone.
-            </p>
-          </div>
-          <button
-            onClick={() => setScreen('MESH_RELAY')}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-700/80 text-xs font-semibold"
-          >
-            <span>Interactive Mesh Sandbox</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+      {/* Privacy & Ethical Safeguards Overview (Phase 16) */}
+      <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+          <Shield className="w-4 h-4 text-cyan-400" />
+          <h2 className="text-sm font-bold text-slate-200 uppercase font-mono tracking-wide">
+            Privacy & Trust Architecture
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          
-          <div className="p-4 rounded-xl bg-[#0a0d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-red-950/80 border border-red-800/80 flex items-center justify-center text-red-400">
-              <AlertTriangle className="w-4 h-4" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+          <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-200 font-semibold mb-1">
+              <EyeOff className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Zero Raw Audio Uploading</span>
             </div>
-            <h3 className="font-bold text-sm text-slate-100">1. On-Device Risk Fusion</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              No server connection needed. Audio screams, sudden vehicle deceleration (4G+ impact), and gyroscopic flips are fused locally on-device into a 0–100 risk index.
+            <p className="text-slate-400 leading-relaxed">
+              Acoustic monitoring runs locally on-device. Audio is converted to mathematical RMS features and never recorded, saved, or uploaded to servers.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0a0d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-950/80 border border-amber-800/80 flex items-center justify-center text-amber-400">
-              <ShieldCheck className="w-4 h-4" />
+          <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-200 font-semibold mb-1">
+              <Lock className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Zero-Knowledge Relay</span>
             </div>
-            <h3 className="font-bold text-sm text-slate-100">2. 10-Second Safety Confirmation</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Eliminates false alarms from dropped phones. If the user is responsive, a single tap aborts the alert. If unresponsive, emergency SOS triggers automatically.
+            <p className="text-slate-400 leading-relaxed">
+              Participating relay phones carry encrypted packet envelopes. Relaying commuters cannot inspect your identity, contacts, or GPS location.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0a0d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-950/80 border border-indigo-800/80 flex items-center justify-center text-indigo-400">
-              <Radio className="w-4 h-4" />
+          <div className="p-3 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-200 font-semibold mb-1">
+              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <span>Automatic Packet Expiry (TTL)</span>
             </div>
-            <h3 className="font-bold text-sm text-slate-100">3. Multi-Hop Mesh Relay</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              SOS packets propagate via BLE 5.2 advertisements and Wi-Fi Direct. Relaying devices forward encrypted packets without ever seeing private personal data.
+            <p className="text-slate-400 leading-relaxed">
+              Distress beacons carry a strict Time-To-Live (300 seconds). Once delivered or expired, relay caches purge all cached records automatically.
             </p>
           </div>
-
         </div>
       </div>
 

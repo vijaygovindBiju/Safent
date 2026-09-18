@@ -10,7 +10,8 @@ import {
   RotateCcw, 
   Send,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  Info
 } from 'lucide-react';
 import { useSafety } from '../../context/SafetyContext';
 
@@ -29,6 +30,12 @@ export const DangerDetectionScreen: React.FC = () => {
     suddenRotation: 20,
     lateNightContext: 10,
     totalScore: 95,
+    confidences: {
+      impact: 98,
+      audio: 88,
+      rotation: 92,
+      context: 99
+    },
     level: 'HIGH'
   };
 
@@ -36,7 +43,7 @@ export const DangerDetectionScreen: React.FC = () => {
     <div className="max-w-3xl mx-auto py-6 px-4 sm:px-6 space-y-6">
       
       {/* High Alert Banner */}
-      <div className="bg-red-950/50 border-2 border-red-600/80 rounded-3xl p-6 shadow-2xl text-center relative overflow-hidden emergency-glow">
+      <div className="bg-red-950/50 border-2 border-red-600/80 rounded-3xl p-6 sm:p-8 shadow-2xl text-center relative overflow-hidden emergency-glow">
         
         {/* Pulsing Warning Icon */}
         <div className="w-16 h-16 rounded-full bg-red-600 border-4 border-red-400/80 mx-auto flex items-center justify-center text-white shadow-xl shadow-red-900/60 mb-4 animate-bounce">
@@ -73,7 +80,7 @@ export const DangerDetectionScreen: React.FC = () => {
         {/* Core Dual Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto pt-2">
           
-          {/* I'M SAFE Button (False positive dismiss) */}
+          {/* I'M SAFE Button (False-positive dismiss) */}
           <button
             onClick={confirmSafe}
             className="flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-xl shadow-emerald-950/50 transition-all border border-emerald-400"
@@ -93,26 +100,26 @@ export const DangerDetectionScreen: React.FC = () => {
 
         </div>
 
-        <div className="mt-4 text-[11px] text-slate-400 font-mono">
-          Demonstrates false-positive protection: No action will trigger automatic SOS after 0s.
+        <div className="mt-4 text-[11px] text-slate-300 font-mono bg-black/40 py-2 px-3 rounded-xl max-w-md mx-auto">
+          <strong>False-Positive Protection:</strong> If the phone is dropped accidentally, tapping "I'M SAFE" dismisses the alert immediately. Unresponsive users trigger automatic SOS upon countdown expiry.
         </div>
 
       </div>
 
-      {/* Sensor Fusion Risk Breakdown Card (P0 Requirement) */}
+      {/* Sensor Fusion Risk Breakdown Card */}
       <div className="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800/80">
           <div>
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-cyan-400" />
-              <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider">
-                Multi-Sensor Risk Fusion Architecture
+              <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider font-mono">
+                Multi-Sensor Risk Fusion Model
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Simulated on-device edge scoring model combining IMU telemetry, audio classifier & context.
-            </p>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800 inline-block mt-1">
+              DEMO / SIMULATED SENSOR INPUT
+            </span>
           </div>
 
           {/* Total Score Badge */}
@@ -125,7 +132,7 @@ export const DangerDetectionScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Breakdown Items */}
+        {/* Signals Table Breakdown with Contribution & Confidence (Phase 6 requirement) */}
         <div className="space-y-3">
           
           {/* Signal 1: Impact */}
@@ -135,9 +142,14 @@ export const DangerDetectionScreen: React.FC = () => {
                 <Activity className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-slate-200 block">
-                  Impact / Rapid Deceleration
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-200">
+                    Impact / Rapid Deceleration
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800">
+                    Confidence: {riskFusion.confidences?.impact || 98}%
+                  </span>
+                </div>
                 <span className="text-[11px] text-slate-400 font-mono">
                   {sensorTelemetry.accelerometerG}G force registered by 3-axis Accelerometer
                 </span>
@@ -155,11 +167,16 @@ export const DangerDetectionScreen: React.FC = () => {
                 <Volume2 className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-slate-200 block">
-                  Acoustic Anomaly / Distress Spike
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-200">
+                    Acoustic Anomaly / Distress Spike
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800">
+                    Confidence: {riskFusion.confidences?.audio || 88}%
+                  </span>
+                </div>
                 <span className="text-[11px] text-slate-400 font-mono">
-                  {sensorTelemetry.ambientDecibels} dB high-frequency sound spike (shatter/screaming)
+                  {sensorTelemetry.ambientDecibels} dB acoustic spike (shatter / scream classifier)
                 </span>
               </div>
             </div>
@@ -175,9 +192,14 @@ export const DangerDetectionScreen: React.FC = () => {
                 <RotateCcw className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-slate-200 block">
-                  Sudden Vehicle / Device Rotation
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-200">
+                    Sudden Vehicle / Device Rotation
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800">
+                    Confidence: {riskFusion.confidences?.rotation || 92}%
+                  </span>
+                </div>
                 <span className="text-[11px] text-slate-400 font-mono">
                   {sensorTelemetry.gyroscopeDps}°/s angular tumble registered by Gyroscope
                 </span>
@@ -195,9 +217,14 @@ export const DangerDetectionScreen: React.FC = () => {
                 <Moon className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-slate-200 block">
-                  Late-Night Transit Context
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-200">
+                    Late-Night Transit Context
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800">
+                    Confidence: {riskFusion.confidences?.context || 99}%
+                  </span>
+                </div>
                 <span className="text-[11px] text-slate-400 font-mono">
                   Active journey past 22:00 IST in unfamiliar transit corridor
                 </span>
@@ -211,9 +238,9 @@ export const DangerDetectionScreen: React.FC = () => {
         </div>
 
         {/* Technical Architecture Note */}
-        <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 font-mono flex items-center justify-between">
-          <span>In production: Native Android SensorManager + TensorFlow Lite Edge Audio model</span>
-          <span className="text-cyan-400">100% On-Device Privacy</span>
+        <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span>Proposed implementation: Android SensorManager + TFLite Audio Classifier</span>
+          <span className="text-cyan-400">100% Local On-Device Processing</span>
         </div>
 
       </div>

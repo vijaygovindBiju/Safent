@@ -1,151 +1,140 @@
 # Travel SOS Mesh — Late-Night Journey Safety Companion
 > **Hackathon Challenge:** SC-03 — Late-Night Journey Safety Companion  
-> **Team:** Maravazha  
-> **Members:** Vijaygovind Biju, Noel Paul Tomy  
-> **Status:** Pre-Qualification Prototype MVP  
+> **Team:** Maravazha (Vijaygovind Biju, Noel Paul Tomy)  
+> **Status:** Pre-Qualification Prototype MVP • Verified Running  
 
 ---
 
-## 🎯 The Core Innovation
+## 💡 The Core Innovation
 
 > **"Even when the traveller's phone has no Internet, their SOS can travel through nearby participating devices until it reaches an Internet-connected gateway."**
 
-Traditional personal safety apps fail at the exact moment danger strikes: when a traveller enters an underground transit corridor, remote highway stretch, or dark dead-zone with zero cellular connectivity.
+Late-night transit accidents and attacks happen disproportionately in dead zones: underground metro tunnels, highway blackouts, and low-connectivity sectors. Traditional safety apps are rendered completely useless without mobile data.
 
-**Travel SOS Mesh** transforms ordinary smartphones into autonomous safety nodes. Using **BLE 5.2 Extended Advertisements** and **Wi-Fi Aware peer-to-peer mesh networking**, an emergency beacon hops opportunistically across participating commuter devices until it reaches a device with active cellular data, which automatically uplinks the encrypted packet to emergency responders.
-
----
-
-## 🚀 End-to-End System Architecture
-
-```
-┌───────────────────────────┐
-│     TRAVELLER PHONE A     │
-│       (No Internet)       │
-│  - 3-Axis IMU (Impact)    │
-│  - Edge Audio Classifier  │
-│  - AES-GCM-256 Envelope   │
-└─────────────┬─────────────┘
-              │ BLE 5.2 Extended Advertising (255B)
-              ▼
-┌───────────────────────────┐
-│       RELAY PHONE B       │
-│ (Nearby Commuter in Auto) │
-│  - Zero Internet needed   │
-│  - Passive Store & Forward│
-│  - Zero knowledge of data │
-└─────────────┬─────────────┘
-              │ Wi-Fi Aware / BLE Re-broadcast
-              ▼
-┌───────────────────────────┐
-│      GATEWAY PHONE C      │
-│ (Pedestrian with 5G/4G)   │
-│  - Detects emergency tag  │
-│  - Immediate HTTPS Uplink │
-└─────────────┬─────────────┘
-              │ Secure HTTPS REST / TLS 1.3
-              ▼
-┌───────────────────────────┐
-│     CLOUD SOS BACKEND     │
-│   (AWS Mumbai Cluster)    │
-│  - Decrypts emergency key │
-│  - Dispatches WebSocket   │
-└─────────────┬─────────────┘
-              │ Real-time WebSocket Push
-              ▼
-┌───────────────────────────┐
-│  SAFETY RESPONSE CENTER   │
-│ (Ambulance 108 & Police)  │
-│  - Live GPS Vectoring     │
-│  - Automated Contact SMS  │
-└───────────────────────────┘
-```
+**Travel SOS Mesh** transforms ordinary smartphones into autonomous peer safety nodes. Using **BLE 5.2 Extended Advertisements** and **Wi-Fi Aware store-and-forward mesh routing**, an encrypted distress beacon hops opportunistically from phone to phone until reaching an Internet-connected peer device that uplinks the signal to emergency dispatchers.
 
 ---
 
-## 📱 Prototype Screens & Features
+## 🔄 The 7-Stage End-to-End Workflow
 
-| # | Screen | Key Functionality |
+```
+DETECTION ➔ RISK FUSION ➔ SAFETY CONFIRMATION ➔ SOS CREATED ➔ MESH RELAY ➔ 5G GATEWAY ➔ RESPONDER
+```
+
+```
+┌─────────────────────────────────┐
+│        TRAVELLER PHONE A        │
+│          (No Internet)          │
+│  - Multi-Sensor Edge Fusion     │
+│  - 10s False-Positive Challenge │
+│  - AES-GCM-256 Envelope PDU     │
+└────────────────┬────────────────┘
+                 │ BLE 5.2 Extended Advertising (<255B)
+                 ▼
+┌─────────────────────────────────┐
+│          RELAY PHONE B          │
+│    (Commuter in Auto-Rickshaw)  │
+│  - Zero Internet required       │
+│  - Store-and-Forward Rebroadcast│
+│  - Zero Knowledge of Plaintext  │
+└────────────────┬────────────────┘
+                 │ Wi-Fi Aware / BLE Re-broadcast
+                 ▼
+┌─────────────────────────────────┐
+│         GATEWAY PHONE C         │
+│   (Pedestrian with 5G Cellular) │
+│  - Detects emergency beacon     │
+│  - Immediate HTTPS Cloud Uplink │
+└────────────────┬────────────────┘
+                 │ Secure HTTPS / TLS 1.3
+                 ▼
+┌─────────────────────────────────┐
+│        CLOUD SOS BACKEND        │
+│   - Digital signature verified  │
+│   - WebSockets dispatch stream  │
+└────────────────┬────────────────┘
+                 │ Real-Time WebSocket Push
+                 ▼
+┌─────────────────────────────────┐
+│     SAFETY RESPONSE CENTER      │
+│  - Console #04 Dispatch View    │
+│  - Ambulance 108 & Police Units │
+│  - Emergency Contact SMS Alert  │
+└─────────────────────────────────┘
+```
+
+---
+
+## 🔍 Implementation Status (Honest Technical Transparency)
+
+To maintain absolute credibility before judges, features are clearly categorized:
+
+| Feature | Status | Implementation Details |
 |---|---|---|
-| **1** | **Home / Landing** | Serious transportation safety interface, live network state, mesh status metrics, quick-start CTA, and "RUN FULL SOS DEMO" button. |
-| **2** | **Start Journey** | Destination configuration (presets for Kochi Metro, Marine Drive, Kakkanad InfoPark), Emergency contact setup, on-device sensor toggles. |
-| **3** | **Active Journey** | Real-time tactical SVG GPS radar map with live coordinates, battery level, speed, tri-sensor indicators, dual online/offline switcher, and radial **HOLD FOR SOS** button. |
-| **4** | **Danger Detection** | Multi-sensor risk fusion model breakdown (+40 Impact, +25 Audio shatter, +20 Gyro tumble, +10 Late-night = 95/100 HIGH). **10-second auditory countdown** demonstrating false-positive prevention with `[I'M SAFE]` and `[SEND SOS]`. |
-| **5** | **SOS Active** | Serious emergency state displaying encrypted AES-256 payload, last known GPS fix, and step-by-step mesh relay status checkmarks. |
-| **6** | **Mesh Visualization** | Interactive, animated visual pipeline of the 5 nodes: Traveller A ➔ Relay B ➔ Gateway C ➔ Cloud ➔ Responder. Displays Message ID, TTL, hop latency, RSSI, and node packet inspector. |
-| **7** | **Responder Dashboard** | Emergency dispatch command center (`Dispatch Desk #04`), active incident cards with severity badges, 1-click **Acknowledge**, **Ambulance 108 Dispatch**, microsecond audit timeline, and simulated emergency SMS delivery. |
+| **State Machine & Navigation** | `IMPLEMENTED` | Centralized React/TypeScript state engine covering all 7 stages and automatic/manual transitions. |
+| **Tactical GPS Radar Map** | `IMPLEMENTED` | Zero-API-key tactical SVG cartography with live breadcrumb route, compass, satellite fix, and BLE beacon rings. |
+| **Audio Synthesizer** | `IMPLEMENTED` | 100% client-side Web Audio API synthesizer for warning sirens, countdown beeps, sonar pings, and dispatch chimes (with mute toggle). |
+| **False-Positive Guard** | `IMPLEMENTED` | 10-second countdown challenge with `[I'M SAFE]` cancellation and automatic SOS fallback upon timeout. |
+| **Interactive Mesh Visualizer** | `IMPLEMENTED` | 5-node pipeline with live packet animation, hop tracking, TTL decrementing, and node schema inspector. |
+| **Responder Dispatch Console** | `IMPLEMENTED` | Command center with active incident cards, `[ACKNOWLEDGE]`, `[DISPATCH UNITS]`, and microsecond timeline logs. |
+| **60s Automated Demo Engine** | `IMPLEMENTED` | Single-click `[ RUN FULL SOS DEMO ]` automating the full end-to-end loop with live progress narration. |
+| **3-Axis Sensor & Audio ML** | `SIMULATED` | Edge sensor signals (4.85G impact, 86°/s tumble, 92 dB acoustic spike) are simulated in this browser environment. |
+| **BLE 5.2 / Wi-Fi Aware Stack** | `SIMULATED` | The prototype simulates packet transmission; production architecture is designed for native Android. |
+| **SMS & Unit Dispatch Integration** | `SIMULATED` | Simulated SMS dispatch to trusted contact and simulated GPS vectoring to emergency services. |
+| **Native Android Daemons** | `PLANNED` | Kotlin foreground service with `BluetoothLeAdvertiser`, `WifiAwareManager`, and hardware Keystore encryption. |
 
 ---
 
-## ⚡ 60-Second Hackathon Judge Demo Guide
+## ⚡ 60-Second Demo Instructions for Judges
 
-To review the entire end-to-end loop in under 60 seconds:
-
-1. Click the glowing **`[ RUN FULL SOS DEMO ]`** button in the top header (or on the Home screen).
-2. **Watch the automated sequence:**
-   - **T+1.5s:** Safe journey initializes toward Kochi.
-   - **T+3.5s:** Network automatically switches to **OFFLINE (Mesh Mode)** to simulate entering a cellular shadow zone.
-   - **T+6.5s:** Crash event simulates with 4.85G impact and acoustic distress anomaly (Risk: **95/100 HIGH**).
-   - **T+10.5s:** 10-second countdown runs; with no user response, the system auto-triggers emergency SOS.
-   - **T+12.5s:** Navigates to **Mesh Visualizer**: Traveller Phone A transmits encrypted packet via BLE 5.2 to Relay Phone B.
-   - **T+15.5s:** Relay Phone B forwards packet to Gateway Phone C.
-   - **T+18.5s:** Gateway Phone C utilizes active 5G cell data to uplink packet to Cloud SOS Backend.
-   - **T+21.5s:** Navigates to **Safety Response Center**: Emergency siren chimes, live GPS lock renders on operator console.
-   - **T+25.0s:** Dispatcher acknowledges incident; confetti triggers; Ambulance 108 and Kochi Police patrol units are dispatched.
-
----
-
-## 🛡️ Key Architectural Differentiators
-
-### 1. Zero-Internet Store-and-Forward Mesh
-Unlike standard safety applications that completely fail when data connectivity drops to zero, Travel SOS Mesh utilizes non-connectable BLE 5.2 Extended Advertising PDUs (255 bytes capacity) to broadcast encrypted distress beacons across a 50-meter radius without requiring pairing.
-
-### 2. Multi-Sensor Edge Risk Fusion
-Risk scoring runs 100% on-device on the user's phone using native Android sensor APIs (`SensorManager`) and a lightweight TensorFlow Lite audio classifier. No raw microphone audio ever leaves the device, preserving absolute user privacy.
-
-### 3. False-Positive Protection
-Accidentally dropping your phone does not summon emergency services. The system initiates a high-urgency 10-second sensory challenge. A single tap on `[ I'M SAFE ]` dismisses the alert and records a false-positive cancellation in the audit trail.
-
-### 4. Zero-Knowledge Cryptographic Privacy
-Packets forwarded by participating peer phones (Phones B and C) are encrypted with public-key dispatch encryption (`AES-GCM-256`). Relaying users cannot inspect the traveller's identity, photos, location, or emergency contacts. Only authenticated emergency dispatchers can decrypt the payload.
+1. Open **`http://localhost:4173/`** in any web browser.
+2. Click the glowing **`[ RUN FULL SOS DEMO ]`** button in the header.
+3. **Watch the automated 50-second flow:**
+   - **00s:** Journey active with on-device monitoring.
+   - **05s:** Vehicle enters dead zone &rarr; Network switches to **OFFLINE (Mesh Active)**.
+   - **10s:** Sensor anomaly detected &rarr; Risk fusion reaches **95/100 (HIGH)**.
+   - **20s:** "Are you safe?" 10-second countdown runs to prevent false alarms.
+   - **25s:** Incapacitated traveller does not respond &rarr; SOS beacon generated.
+   - **30s:** Packet relays peer-to-peer from Phone A &rarr; Relay Phone B.
+   - **35s:** Phone B forwards to Gateway Phone C with active 5G.
+   - **40s:** Gateway C uploads payload to Cloud SOS Backend.
+   - **45s:** Safety Response Center receives alert with live GPS coordinates.
+   - **50s:** Dispatcher acknowledges incident &rarr; Emergency units dispatched.
+4. Click **`[ RESET DEMO ]`** to return to a clean state anytime.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
-- **Framework:** React 18 + TypeScript + Vite
-- **Styling:** Tailwind CSS + Custom Dark Transportation Safety Theme
+- **Frontend:** React 18, TypeScript, Vite
+- **Styling:** Tailwind CSS, Custom Tactical Safety Theme
 - **Icons:** Lucide React
-- **Audio Synthesizer:** Web Audio API (100% client-side synthesized sirens, countdown beeps, sonar pings, and success chimes — 0 external audio file dependencies)
-- **Visuals:** SVG Tactical Radar Map, Canvas Confetti, Animated Hop Paths
+- **Audio:** Client-side Web Audio API Synthesizer (0 external file dependencies)
+- **Effects:** Canvas Confetti, SVG Tactical Radar, Animated SVG Paths
+- **Documentation:** Markdown specifications in [`/docs`](file:///media/pirate/Shared/currently%20working/Safent/docs)
 
 ---
 
-## 💻 Local Development & Build
+## 🚀 Quickstart & Production Build
 
-### Prerequisites
-- Node.js >= 18
-- npm >= 9
-
-### Install & Run
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Start development server
+# 2. Start local development server
 npm run dev
 
-# Build production bundle
+# 3. Build optimized production bundle
 npm run build
 
-# Preview production build locally
+# 4. Preview production build locally
 npm run preview
 ```
 
-Production output is compiled to the `dist/` directory and can be deployed directly to any static hosting provider (Vercel, Netlify, GitHub Pages, Cloudflare Pages) with zero configuration.
+The production bundle in `dist/` is completely standalone, contains zero localhost dependencies, and can be hosted instantly on Vercel, Netlify, or GitHub Pages.
 
 ---
 
 ## 👥 Team Maravazha
-- **Vijaygovind Biju** — System Architecture & Mesh Protocol Design
-- **Noel Paul Tomy** — Frontend Engineering & Sensor Simulation Engine
+- **Vijaygovind Biju** — Mesh Architecture & System Design
+- **Noel Paul Tomy** — Frontend Engineering & Simulation Engine

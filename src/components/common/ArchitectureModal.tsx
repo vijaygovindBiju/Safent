@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Cpu, Radio, Shield, Network, Lock, CheckCircle2, Layers } from 'lucide-react';
+import { X, Cpu, Radio, Shield, Network, Lock, CheckCircle2, Layers, EyeOff, Clock, AlertTriangle } from 'lucide-react';
 
 interface ArchitectureModalProps {
   isOpen: boolean;
@@ -17,10 +17,10 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-800 uppercase">
-              Technical Architecture Whitepaper
+              System Architecture & Transparency
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
-              Travel SOS Mesh Protocol Specifications
+              Travel SOS Mesh Architecture
             </h2>
           </div>
           <button
@@ -31,53 +31,115 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
           </button>
         </div>
 
-        {/* 4 Pillars of the Architecture */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Pillar 1 */}
-          <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-red-950/80 border border-red-800 flex items-center justify-center text-red-400">
-              <Cpu className="w-4 h-4" />
+        {/* Prototype Transparency Notice */}
+        <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-800/80 space-y-1.5 text-xs text-slate-300">
+          <div className="flex items-center gap-2 text-amber-300 font-bold font-mono text-[11px] uppercase">
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <span>Prototype Reality Notice (Honest Technical Distinction)</span>
+          </div>
+          <p className="text-slate-400 leading-relaxed">
+            This browser application simulates the networking and sensor layers to demonstrate the end-to-end architecture for hackathon evaluation. The production mobile deployment is designed for native Android using C++ and Kotlin.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[10px]">
+            <div className="p-1.5 rounded bg-slate-900/80 border border-slate-800 text-emerald-400">
+              ✓ IMPLEMENTED: State engine, UI, Audio synthesizer, Demo flow
             </div>
-            <h3 className="font-bold text-sm text-white">1. Edge Risk Fusion Engine</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Implemented on Android via native <code className="text-cyan-400">SensorManager</code> and on-device TFLite edge models. Samples 3-axis accelerometer, gyroscope, and acoustic RMS features at 100Hz locally. Raw audio is never recorded or streamed.
-            </p>
+            <div className="p-1.5 rounded bg-slate-900/80 border border-slate-800 text-amber-400">
+              ⚡ SIMULATED: Sensor inputs, BLE packets, 5G uplink, Dispatch
+            </div>
+            <div className="p-1.5 rounded bg-slate-900/80 border border-slate-800 text-cyan-400">
+              📋 PLANNED: Native Android SensorManager, BLE daemon, PSAP API
+            </div>
+          </div>
+        </div>
+
+        {/* 6 Architectural Layers */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold text-slate-300 uppercase font-mono tracking-wider">
+            Layer-by-Layer Architectural Pipeline
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 1: LOCAL DETECTION</span>
+              <h4 className="font-bold text-white text-sm">On-Device Risk Fusion</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Samples 3-axis accelerometer (impact &gt;4G), gyroscope (&gt;80°/s tumble), and acoustic RMS features locally. Raw microphone sound is never recorded or streamed.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 2: USER VERIFICATION</span>
+              <h4 className="font-bold text-white text-sm">10s Safety Challenge</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Eliminates false alarms when a phone is dropped. A single tap on "I'M SAFE" aborts transmission. If the user is unresponsive, SOS triggers automatically.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 3: COMPACT PAYLOAD</span>
+              <h4 className="font-bold text-white text-sm">Offline-First Distress PDU</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Compresses GPS fix, risk score, device ID, and timestamp into a 255-byte advertising payload protected with public-key dispatch envelope encryption.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 4: PEER RELAY</span>
+              <h4 className="font-bold text-white text-sm">Store-and-Forward Mesh</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Nearby participating commuter phones receive packets via BLE 5.2 Extended Advertisements, decrement TTL, and re-broadcast across a 50m radius without cellular data.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 5: UPLINK GATEWAY</span>
+              <h4 className="font-bold text-white text-sm">Opportunistic 5G Uplink</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Any participating device with active cellular reception acts as a passive bridge, forwarding the encrypted packet via HTTPS to the cloud ingestion backend.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16] border border-slate-800 space-y-1">
+              <span className="text-cyan-400 font-bold font-mono text-[10px] block">LAYER 6: EMERGENCY DISPATCH</span>
+              <h4 className="font-bold text-white text-sm">Response Center Console</h4>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Authorized safety dispatchers decrypt the payload to display exact coordinates, route history, and vector response units (Ambulance 108 / Police).
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Phase 16: Privacy & Ethical Safeguards */}
+        <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-800 space-y-2 text-xs">
+          <div className="flex items-center gap-2 text-slate-200 font-bold uppercase font-mono">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span>Privacy & Ethical Safeguards</span>
           </div>
 
-          {/* Pillar 2 */}
-          <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-950/80 border border-indigo-800 flex items-center justify-center text-indigo-400">
-              <Radio className="w-4 h-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-400 text-[11px] leading-relaxed pt-1">
+            <div className="space-y-1">
+              <span className="text-slate-200 font-semibold block">● Local On-Device Processing:</span>
+              Sensor telemetry is evaluated locally. Audio classification runs on-device via quantized neural network weights without streaming audio.
             </div>
-            <h3 className="font-bold text-sm text-white">2. BLE 5.2 Store-and-Forward</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              When cell reception is lost (OFFLINE), the app utilizes non-connectable BLE 5.2 Extended Advertising PDUs (255 byte capacity). Nearby participating devices cache the packet and re-advertise it across a 50m radius.
-            </p>
-          </div>
 
-          {/* Pillar 3 */}
-          <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-800 flex items-center justify-center text-emerald-400">
-              <Network className="w-4 h-4" />
+            <div className="space-y-1">
+              <span className="text-slate-200 font-semibold block">● Zero-Knowledge Relaying:</span>
+              Participating relay nodes carry opaque ciphertexts. Relay users cannot view your name, photos, contacts, or location.
             </div>
-            <h3 className="font-bold text-sm text-white">3. Opportunistic Internet Gateways</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Any participating commuter with active cellular data (4G/5G) acts as a passive gateway node. Upon detecting the emergency beacon, it uplinks the encrypted packet via HTTPS to the cloud SOS backend within ~200ms.
-            </p>
-          </div>
 
-          {/* Pillar 4 */}
-          <div className="p-4 rounded-2xl bg-[#090d16] border border-slate-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-800 flex items-center justify-center text-cyan-400">
-              <Lock className="w-4 h-4" />
+            <div className="space-y-1">
+              <span className="text-slate-200 font-semibold block">● Time-To-Live (TTL) Automatic Purge:</span>
+              Emergency packets automatically expire after 300 seconds, preventing stale message loops across peer devices.
             </div>
-            <h3 className="font-bold text-sm text-white">4. Zero-Knowledge Encryption</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Payloads are enveloped in AES-GCM-256 with public-key dispatch encryption. Relaying devices cannot read traveller identities, GPS coordinates, or emergency contacts, preventing privacy violations or eavesdropping.
-            </p>
-          </div>
 
+            <div className="space-y-1">
+              <span className="text-slate-200 font-semibold block">● Opt-in Community Participation:</span>
+              Commuters opt in to act as relay nodes, with battery throttling guards ensuring under 1% background consumption.
+            </div>
+          </div>
         </div>
 
         {/* Team Credits */}
@@ -96,7 +158,7 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
             onClick={onClose}
             className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
           >
-            Close Inspector
+            Close Whitepaper
           </button>
         </div>
 

@@ -66,7 +66,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     gyroscopeDps: 3.4,
     ambientDecibels: 48,
     speedKmh: 42,
-    isNightTime: true
+    isNightTime: true,
+    isSimulated: true
   });
 
   // Danger countdown state
@@ -82,6 +83,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const demoTimeoutRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const toggleMute = () => {
@@ -124,14 +126,29 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const nextStatus = networkStatus === 'OFFLINE' ? 'ONLINE' : 'OFFLINE';
     setNetworkStatus(nextStatus);
     addTimelineEvent(
-      `Network Changed: ${nextStatus}`,
-      `Device connection manually toggled to ${nextStatus}. ${nextStatus === 'OFFLINE' ? 'Operating in zero-connectivity Bluetooth Mesh fallback mode.' : 'Direct cellular Internet available.'}`,
+      `Network Switched to ${nextStatus}`,
+      `Device connection manually set to ${nextStatus}. ${nextStatus === 'OFFLINE' ? 'Operating in zero-connectivity mode. Store-and-Forward Mesh enabled.' : 'Direct cellular connectivity available.'}`,
       'MESH',
       nextStatus === 'OFFLINE' ? 'WARNING' : 'INFO'
     );
   };
 
-  // Live sensor noise fluctuation
+  // Live journey duration ticker
+  useEffect(() => {
+    if (journey.status === 'ACTIVE' || journey.status === 'DANGER_SUSPECTED' || journey.status === 'SOS_TRIGGERED') {
+      durationIntervalRef.current = setInterval(() => {
+        setJourney(prev => ({
+          ...prev,
+          elapsedSeconds: prev.elapsedSeconds + 1
+        }));
+      }, 1000);
+      return () => {
+        if (durationIntervalRef.current) clearInterval(durationIntervalRef.current);
+      };
+    }
+  }, [journey.status]);
+
+  // Live sensor noise fluctuation (Simulated telemetry)
   useEffect(() => {
     if (journey.status === 'ACTIVE' && !isDangerActive) {
       const interval = setInterval(() => {
@@ -140,7 +157,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           gyroscopeDps: Number((3.0 + (Math.random() * 2.5 - 1.2)).toFixed(1)),
           ambientDecibels: Math.floor(45 + Math.random() * 8),
           speedKmh: Math.floor(38 + Math.random() * 6),
-          isNightTime: true
+          isNightTime: true,
+          isSimulated: true
         }));
       }, 1500);
       return () => clearInterval(interval);
@@ -154,10 +172,12 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       id: `JNY-${Date.now().toString().slice(-6)}`,
       destination: dest || "Kochi, Kerala",
       startTime: getNowTimeString() + " IST",
+      elapsedSeconds: 0,
       status: "ACTIVE",
       networkStatus: networkStatus,
       location: KOCHI_LOCATIONS.MG_ROAD,
       battery: 78,
+      nearbyRelayCount: 2,
       trustedContact: {
         name: contactName || "Emergency Contact",
         phone: contactPhone || "+91 98470 12345",
@@ -175,26 +195,28 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
-  // Step 4: Danger Trigger
+  // Step 4: Danger Trigger (Simulated sensor fusion spike)
   const simulateDanger = useCallback(() => {
     setIsDangerActive(true);
     setDangerCountdown(10);
     soundFx.playEmergencyAlarm();
 
-    // Spike telemetry values
+    // Spike telemetry values (Simulated for demonstration)
     setSensorTelemetry({
       accelerometerG: 4.85, // Heavy sudden deceleration / impact
       gyroscopeDps: 86.4,  // Severe rotation
       ambientDecibels: 92, // Glass shattering / sudden scream / metal crush
       speedKmh: 0,
       isNightTime: true,
-      lastAnomalyType: 'IMPACT_AND_ACOUSTIC_ANOMALY'
+      lastAnomalyType: 'IMPACT_AND_ACOUSTIC_ANOMALY',
+      isSimulated: true
     });
 
     const timeStr = getNowTimeString();
     const riskFusion: RiskFusionScore = {
       ...DEFAULT_RISK_FUSION,
-      detectedAt: timeStr
+      detectedAt: timeStr,
+      isSimulated: true
     };
 
     const newIncident: Incident = {
@@ -208,7 +230,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       status: "CONFIRMATION_PENDING",
       travellerName: "Anonymous Traveller (Device A)",
       battery: 78,
-      encryptedHash: "SHA256:8f4c2b9a70e3d11b238f4d99"
+      encryptedHash: "SHA256:8f4c2b9a70e3d11b238f4d99",
+      isSimulated: true
     };
 
     setIncident(newIncident);
@@ -217,7 +240,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     addTimelineEvent(
       "⚠ Danger Detected: Risk 95/100 HIGH",
-      "Sensor fusion detected severe multi-axis impact (+40), acoustic anomaly (+25), rapid angular tumble (+20) in late-night transit context (+10). Initiating 10s safety confirmation.",
+      "Simulated sensor fusion registered multi-axis impact (+40), acoustic anomaly (+25), rapid angular tumble (+20) in late-night transit context (+10). Initiating 10s safety confirmation.",
       'DETECTION',
       'CRITICAL'
     );
@@ -238,7 +261,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       gyroscopeDps: 2.1,
       ambientDecibels: 46,
       speedKmh: 40,
-      isNightTime: true
+      isNightTime: true,
+      isSimulated: true
     });
 
     if (incident) {
@@ -253,7 +277,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     addTimelineEvent(
       "User Confirmed Safe (False-Positive Prevented)",
-      "Traveller manually pressed 'I'm Safe' within 10-second countdown window. SOS transmission successfully aborted.",
+      "Traveller manually pressed 'I'm Safe' within 10-second confirmation window. SOS transmission successfully aborted.",
       'SAFETY_CHECK',
       'SUCCESS'
     );
@@ -274,7 +298,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const initialSos: SOSMessage = {
       id: `SOS-PKT-${Date.now().toString().slice(-7)}`,
       incidentId: incId,
-      originDevice: "Traveller Phone A (Galaxy S23)",
+      originDevice: "Traveller Phone A (Samsung S23)",
+      originId: "NODE-A",
       currentNode: "NODE-A",
       hopCount: 0,
       maxHops: 5,
@@ -283,6 +308,9 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       status: "PENDING_DISCOVERY",
       encryptedPayload: "AES-GCM-256:39f8bc210a4e77da812ef... [Encrypted GPS, Audio Fingerprint, Biometric State]",
       payloadSizeKb: 1.4,
+      signature: "ED25519-SIG:9b20e184... [Signed by Device A]",
+      deduplicationHash: "SHA256:e3b0c44298fc1c149afbf4c8996fb924",
+      isSimulated: true,
       routeHistory: [
         {
           nodeId: "NODE-A",
@@ -290,7 +318,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           timestamp: timeStr,
           hopIndex: 0,
           protocol: "BLE_5.2_ADVERTISEMENT",
-          latencyMs: 0
+          latencyMs: 0,
+          actionTaken: "Distress beacon generated; BLE 5.2 Extended Advertising active"
         }
       ]
     };
@@ -311,7 +340,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       status: "SOS_CREATED",
       travellerName: "Anonymous Traveller (Device A)",
       battery: 78,
-      encryptedHash: "SHA256:8f4c2b9a70e3d11b238f4d99"
+      encryptedHash: "SHA256:8f4c2b9a70e3d11b238f4d99",
+      isSimulated: true
     };
 
     setIncident(updatedIncident);
@@ -330,7 +360,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     addTimelineEvent(
       "🚨 SOS Activated (Zero Internet Connection)",
-      `Incident ${incId} created. Encrypted emergency beacon initialized (AES-256). Searching for nearby mesh peers via BLE 5.2 and Wi-Fi Aware.`,
+      `Incident ${incId} created. Encrypted emergency beacon initialized (AES-256 simulation). Searching for nearby mesh peers via BLE 5.2.`,
       'SOS',
       'CRITICAL'
     );
@@ -380,6 +410,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...prev,
         currentNode: "NODE-B",
         hopCount: 1,
+        ttl: prev.ttl - 1,
         status: "RELAYING",
         routeHistory: [
           ...prev.routeHistory,
@@ -389,14 +420,15 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             timestamp: timeStr,
             hopIndex: 1,
             protocol: "BLE_5.2_ADVERTISEMENT",
-            latencyMs: 140
+            latencyMs: 140,
+            actionTaken: "Received BLE beacon, validated cache, rebroadcast 50m radius"
           }
         ]
       } : null);
       setIncident(prev => prev ? { ...prev, status: "RELAY_FOUND" } : null);
       addTimelineEvent(
         "Mesh Hop 1: Relayed to Phone B",
-        "Discovered nearby participating peer 'Relay Phone B' (RSSI: -68 dBm). Packet transferred via BLE 5.2 advertising channels without cellular data.",
+        "Discovered nearby peer 'Relay Phone B' (RSSI: -68 dBm). Packet transferred via simulated BLE 5.2 advertising channels without cellular data.",
         'MESH',
         'WARNING'
       );
@@ -413,6 +445,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...prev,
         currentNode: "NODE-C",
         hopCount: 2,
+        ttl: prev.ttl - 1,
         status: "GATEWAY_UPLOADING",
         routeHistory: [
           ...prev.routeHistory,
@@ -422,14 +455,15 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             timestamp: timeStr,
             hopIndex: 2,
             protocol: "WIFI_AWARE",
-            latencyMs: 220
+            latencyMs: 220,
+            actionTaken: "Received peer packet, detected 5G cellular link, queued HTTPS POST"
           }
         ]
       } : null);
       setIncident(prev => prev ? { ...prev, status: "GATEWAY_FOUND" } : null);
       addTimelineEvent(
         "Mesh Hop 2: Internet Gateway Reached (Phone C)",
-        "Relay B forwarded payload to Gateway Phone C. Gateway possesses active 5G Internet connection and begins immediate HTTPS uplink.",
+        "Relay B forwarded payload to Gateway Phone C. Gateway possesses active 5G connection and begins HTTPS uplink.",
         'GATEWAY',
         'WARNING'
       );
@@ -446,6 +480,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...prev,
         currentNode: "NODE-CLOUD",
         hopCount: 3,
+        ttl: prev.ttl - 1,
         status: "DELIVERED_TO_BACKEND",
         routeHistory: [
           ...prev.routeHistory,
@@ -455,14 +490,15 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             timestamp: timeStr,
             hopIndex: 3,
             protocol: "HTTPS_REST",
-            latencyMs: 85
+            latencyMs: 85,
+            actionTaken: "Payload authenticated and queued for emergency dispatch console"
           }
         ]
       } : null);
       setIncident(prev => prev ? { ...prev, status: "DELIVERED" } : null);
       addTimelineEvent(
         "Cloud Backend Ingested SOS Payload",
-        "Payload authenticated and decrypted at AWS Mumbai SOS ingest cluster. Dispatch pipeline triggered; WebSockets broadcasting to emergency responders.",
+        "Payload authenticated at cloud ingest node. WebSockets push to emergency dispatchers initialized.",
         'GATEWAY',
         'SUCCESS'
       );
@@ -479,6 +515,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...prev,
         currentNode: "NODE-RESPONDER",
         hopCount: 4,
+        ttl: prev.ttl - 1,
         status: "RESPONDER_ALERTED",
         routeHistory: [
           ...prev.routeHistory,
@@ -488,7 +525,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             timestamp: timeStr,
             hopIndex: 4,
             protocol: "WEBSOCKET_PUSH",
-            latencyMs: 42
+            latencyMs: 42,
+            actionTaken: "Operator alerted with live GPS coordinates and emergency audio chime"
           }
         ]
       } : null);
@@ -496,7 +534,7 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       soundFx.playSuccessChime();
       addTimelineEvent(
         "🚨 Safety Response Center Notified",
-        "Emergency console received incident packet. Audio sirens and live route coordinates displayed on responder radar.",
+        "Emergency console received incident packet. Operator alerted with live GPS coordinates.",
         'RESPONDER',
         'CRITICAL'
       );
@@ -519,13 +557,13 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         status: "ACKNOWLEDGED",
         acknowledgedBy: responderId,
         acknowledgedAt: timeStr,
-        responderNotes: "Ambulance 108 and Kochi Traffic Patrol unit 4 dispatched to MG Road Metro Station."
+        responderNotes: "Ambulance 108 & Kochi Traffic Patrol Unit #04 dispatched to MG Road coordinates (Simulated Dispatch Integration)."
       });
     }
 
     addTimelineEvent(
       "Incident Acknowledged by Response Center",
-      `Dispatcher ${responderId} verified SOS. Emergency response units mobilized to MG Road coordinates. Trusted contact notified via SMS simulation.`,
+      `Dispatcher ${responderId} verified SOS. Emergency response units dispatched to MG Road coordinates. Trusted contact notified via simulated SMS.`,
       'RESPONDER',
       'SUCCESS'
     );
@@ -542,92 +580,105 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setJourney(j => ({ ...j, status: 'COMPLETED' }));
     addTimelineEvent(
       "Incident Resolved & Secured",
-      "Emergency units arrived on site. Traveller verified safe and transported. Mesh session closed.",
+      "Emergency units arrived on site. Traveller verified safe. Mesh session closed.",
       'RESPONDER',
       'SUCCESS'
     );
   };
 
-  // Run Full Automated Demo (60-90 seconds flow)
+  // Run Full Automated Demo (Aligned with Phase 12 30-55s timeline)
   const runFullDemo = () => {
     // Clear any previous running demo timeouts
     demoTimeoutRef.current.forEach(clearTimeout);
     demoTimeoutRef.current = [];
 
     setIsDemoRunning(true);
-    setDemoProgress(5);
-    setDemoStepText("Phase 1: Initializing late-night journey...");
+    setDemoProgress(2);
+    setDemoStepText("00s: Initializing safe journey toward Kochi (Active monitoring)...");
 
-    // 1. Reset state & Start journey (T+0s)
+    // 1. Reset state & Start journey (00s)
     resetAll();
     const timeouts: ReturnType<typeof setTimeout>[] = [];
 
+    // T+1.5s: Journey begins
     timeouts.push(setTimeout(() => {
-      startJourney("Kochi, Kerala", "Anjali Menon (Sister)", "+91 98470 12345");
-      setDemoProgress(15);
-      setDemoStepText("Phase 2: Simulating Traveller entering zero-network shadow zone (OFFLINE)...");
+      startJourney("MG Road Metro Station, Kochi", "Anjali Menon (Sister)", "+91 98470 12345");
+      setDemoProgress(10);
+      setDemoStepText("00s: Journey active — On-device audio, motion and location sensors monitored.");
     }, 1500));
 
-    // 2. Set network to OFFLINE (T+3.5s)
+    // T+5s: Network lost (OFFLINE)
     timeouts.push(setTimeout(() => {
       setNetworkStatus("OFFLINE");
-      setDemoProgress(28);
-      setDemoStepText("Phase 3: Active journey monitoring (Accelerometer, Audio, GPS active)...");
-    }, 3500));
+      setDemoProgress(20);
+      setDemoStepText("05s: Traveller enters cellular shadow zone (OFFLINE). Store-and-Forward Mesh active.");
+    }, 5000));
 
-    // 3. Simulate Dangerous Event (T+6.5s)
+    // T+10s: Monitoring detects anomaly
+    timeouts.push(setTimeout(() => {
+      setDemoProgress(30);
+      setDemoStepText("10s: Monitoring sensors detect sudden vehicle deceleration and acoustic spike.");
+    }, 10000));
+
+    // T+14s: Risk becomes HIGH (95/100) & Screen 4 appears
     timeouts.push(setTimeout(() => {
       simulateDanger();
       setDemoProgress(40);
-      setDemoStepText("Phase 4: Possible crash detected! Risk Score: 95/100 HIGH. Safety confirmation countdown running...");
-    }, 6500));
+      setDemoStepText("15s: Risk fusion reaches 95/100 HIGH! Safety confirmation challenge initiated.");
+    }, 14000));
 
-    // 4. Let countdown run 3 seconds, then show countdown expiring without response (T+10s)
+    // T+20s: Safety confirmation running
+    timeouts.push(setTimeout(() => {
+      setDemoProgress(50);
+      setDemoStepText("20s: 'Are you safe?' countdown ticking... Evaluating user responsiveness.");
+    }, 20000));
+
+    // T+25s: No response & SOS created
     timeouts.push(setTimeout(() => {
       triggerImmediateSOS();
-      setDemoProgress(52);
-      setDemoStepText("Phase 5: No response from traveller. SOS Created! Zero internet - initiating Mesh Relay...");
-    }, 10500));
+      setDemoProgress(60);
+      setDemoStepText("28s: No response. SOS created! Phone is offline — initiating peer-to-peer mesh broadcast.");
+    }, 25000));
 
-    // 5. Navigate to Mesh Visualization screen (T+12s)
+    // T+30s: Relay discovered (Hop 1)
     timeouts.push(setTimeout(() => {
       setCurrentScreen('MESH_RELAY');
-      setDemoProgress(60);
-      setDemoStepText("Phase 6: Searching for nearby peer... Relaying to Phone B (Commuter)...");
-      advanceMeshHop(); // Hop 1 (to Relay Phone B)
-    }, 12500));
-
-    // 6. Forward to Gateway Phone C (T+15s)
-    timeouts.push(setTimeout(() => {
       setDemoProgress(70);
-      setDemoStepText("Phase 7: Phone B forwards to Gateway Phone C with active 5G Internet!");
-      advanceMeshHop(); // Hop 2 (to Gateway Phone C)
-    }, 15500));
+      setDemoStepText("32s: Nearby peer discovered (Phone B in auto-rickshaw). SOS relayed via BLE 5.2.");
+      advanceMeshHop(); // Hop 1 (to Relay Phone B)
+    }, 30000));
 
-    // 7. Deliver to Cloud SOS Backend (T+18.5s)
+    // T+35s: Gateway discovered (Hop 2)
     timeouts.push(setTimeout(() => {
       setDemoProgress(80);
-      setDemoStepText("Phase 8: Gateway uploads encrypted payload to Cloud SOS Backend...");
-      advanceMeshHop(); // Hop 3 (to Backend)
-    }, 18500));
+      setDemoStepText("36s: Internet Gateway reached (Phone C with active 5G). Uploading to cloud...");
+      advanceMeshHop(); // Hop 2 (to Gateway Phone C)
+    }, 35000));
 
-    // 8. Deliver to Responder Console & Navigate to Responder screen (T+21.5s)
+    // T+40s: Backend receives SOS (Hop 3)
     timeouts.push(setTimeout(() => {
-      setDemoProgress(90);
-      setDemoStepText("Phase 9: SOS Delivered! Safety Response Center siren sounding...");
+      setDemoProgress(88);
+      setDemoStepText("40s: Cloud SOS Backend receives and decrypts emergency payload.");
+      advanceMeshHop(); // Hop 3 (to Cloud Backend)
+    }, 40000));
+
+    // T+45s: Responder notified (Hop 4) & Navigate to Responder Screen
+    timeouts.push(setTimeout(() => {
+      setDemoProgress(94);
+      setDemoStepText("45s: Responder notified! Emergency dispatch sirens sounding at Command Console #04.");
       advanceMeshHop(); // Hop 4 (to Responder)
       setCurrentScreen('RESPONDER');
-    }, 21500));
+    }, 45000));
 
-    // 9. Auto acknowledge (T+25s)
+    // T+50s: Incident acknowledged
     timeouts.push(setTimeout(() => {
       acknowledgeIncident();
       setDemoProgress(100);
-      setDemoStepText("Demo Completed: Full offline-to-responder loop proved in 25 seconds!");
+      setDemoStepText("50s: Incident acknowledged by dispatch! Units dispatched and trusted contact alerted.");
       setTimeout(() => {
         setIsDemoRunning(false);
-      }, 3500);
-    }, 25000));
+      }, 4000);
+    }, 50000));
 
     demoTimeoutRef.current = timeouts;
   };
@@ -645,10 +696,17 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       clearInterval(countdownIntervalRef.current);
       countdownIntervalRef.current = null;
     }
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
     setIsDangerActive(false);
     setDangerCountdown(10);
     setCurrentScreen('HOME');
-    setJourney(INITIAL_JOURNEY);
+    setJourney({
+      ...INITIAL_JOURNEY,
+      elapsedSeconds: 0
+    });
     setNetworkStatusState('OFFLINE');
     setIncident(null);
     setSosMessage(null);
@@ -660,7 +718,8 @@ export const SafetyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       gyroscopeDps: 3.4,
       ambientDecibels: 48,
       speedKmh: 42,
-      isNightTime: true
+      isNightTime: true,
+      isSimulated: true
     });
   };
 

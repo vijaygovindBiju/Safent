@@ -38,12 +38,14 @@ export const KOCHI_LOCATIONS: Record<string, LocationCoordinates> = {
 export const INITIAL_JOURNEY: Journey = {
   id: "JNY-2026-8842",
   destination: "Kochi, Kerala",
-  journeyName: "Late Night Transit home",
+  journeyName: "Late Night Transit Home",
   startTime: "22:30 IST",
+  elapsedSeconds: 840, // 14 mins into journey
   status: "SCHEDULED",
   networkStatus: "OFFLINE",
   location: KOCHI_LOCATIONS.MG_ROAD,
   battery: 78,
+  nearbyRelayCount: 2,
   trustedContact: {
     name: "Anjali Menon (Sister)",
     phone: "+91 98470 12345",
@@ -63,8 +65,15 @@ export const DEFAULT_RISK_FUSION: RiskFusionScore = {
   suddenRotation: 20,
   lateNightContext: 10,
   totalScore: 95,
+  confidences: {
+    impact: 98,
+    audio: 88,
+    rotation: 92,
+    context: 99
+  },
   level: "HIGH",
-  detectedAt: "22:47:03"
+  detectedAt: "22:47:03",
+  isSimulated: true
 };
 
 export const INITIAL_MESH_NODES: MeshNode[] = [
@@ -117,21 +126,21 @@ export const INITIAL_MESH_NODES: MeshNode[] = [
     id: "NODE-CLOUD",
     name: "Cloud SOS Backend",
     type: "BACKEND",
-    roleDescription: "Ingest Cluster (Central Safety Ingestion)",
+    roleDescription: "Central Safety Ingestion Node (Proposed)",
     networkStatus: "CLOUD_INGEST",
     signalStrengthDbm: 0,
     hasPayload: false,
     isCurrentHop: false,
     isDelivered: false,
     coords: { x: 77, y: 50 },
-    macOrId: "aws-ap-south-1.safent.mesh",
+    macOrId: "cloud-ingest.safent.mesh",
     protocol: "HTTPS_REST"
   },
   {
     id: "NODE-RESPONDER",
-    name: "Safety Responder Console",
+    name: "Safety Response Console",
     type: "RESPONDER",
-    roleDescription: "Emergency Dispatch & Rapid Response Center",
+    roleDescription: "Emergency Dispatch & Rapid Response Console #04",
     networkStatus: "DISPATCH_CENTER",
     signalStrengthDbm: 0,
     hasPayload: false,
