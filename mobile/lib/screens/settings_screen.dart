@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/safety_provider.dart';
+import 'permissions_screen.dart';
+import 'onboarding_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -204,6 +206,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+
+            const SizedBox(height: 24),
+
+            // Section: Permissions & Educational Guides
+            _buildSectionHeader('Permissions & Walkthrough', Icons.security_outlined),
+            const SizedBox(height: 10),
+            _buildCard([
+              ListTile(
+                leading: const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 22),
+                title: const Text(
+                  'Permissions & Privacy Hub',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
+                subtitle: const Text(
+                  'Inspect live status of Location, Microphone, Notifications, and Bluetooth.',
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PermissionsScreen()),
+                  );
+                },
+              ),
+              const Divider(height: 1, color: AppColors.surfaceBorder),
+              ListTile(
+                leading: const Icon(Icons.menu_book_outlined, color: AppColors.cyanAccent, size: 22),
+                title: const Text(
+                  'Replay Onboarding Guide',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
+                subtitle: const Text(
+                  'Review the 4-step walkthrough on journey monitoring, offline SOS, and mesh relay.',
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                  );
+                },
+              ),
+            ]),
 
             const SizedBox(height: 24),
 

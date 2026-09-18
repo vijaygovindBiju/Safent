@@ -9,6 +9,7 @@ class StorageService {
   static const String _keyIncidents = 'travel_sos_incidents';
   static const String _keyPendingSos = 'travel_sos_pending_messages';
   static const String _keyTrustedContact = 'travel_sos_trusted_contact';
+  static const String _keyOnboardingCompleted = 'travel_sos_onboarding_completed';
 
   // Singleton instance
   static final StorageService _instance = StorageService._internal();
@@ -97,5 +98,16 @@ class StorageService {
     } catch (_) {
       return null;
     }
+  }
+
+  // --- Onboarding Flow State ---
+  Future<void> saveOnboardingCompleted(bool completed) async {
+    await init();
+    await _prefs!.setBool(_keyOnboardingCompleted, completed);
+  }
+
+  Future<bool> isOnboardingCompleted() async {
+    await init();
+    return _prefs!.getBool(_keyOnboardingCompleted) ?? false;
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/safety_provider.dart';
+import '../services/permission_service.dart';
 
 class JourneyScreen extends StatefulWidget {
   const JourneyScreen({super.key});
@@ -191,7 +192,16 @@ class _JourneyScreenState extends State<JourneyScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
+                final permService = PermissionService();
+                if (_location) {
+                  await permService.requestPermission(AppPermissionType.location);
+                }
+                if (_audio) {
+                  await permService.requestPermission(AppPermissionType.microphone);
+                }
+                await permService.requestPermission(AppPermissionType.notifications);
+
                 safety.startJourney(
                   destination: _destController.text,
                   journeyName: 'Late-Night Commute Home',

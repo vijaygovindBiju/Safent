@@ -45,9 +45,13 @@
 ---
 
 ## 🚀 Phase 2 — Onboarding & Dynamic Permissions
-- [ ] Onboarding flow explaining Journey Monitoring, Safety Detection, Offline SOS, and Mesh Relay `[PLANNED]`
-- [ ] Dynamic runtime permission requests (Location, Microphone, Notifications, Bluetooth) `[PLANNED]`
-- [ ] Permission state UI (Granted, Denied, Permanently Denied with recovery guide) `[PLANNED]`
+- [x] 4-pillar onboarding flow (`OnboardingScreen`) explaining Journey Monitoring, Safety Detection, Offline SOS, and Mesh Relay `[REAL]`
+- [x] First-time launch routing & persistent completion flag in `StorageService` (`isOnboardingCompleted`) `[REAL]`
+- [x] Dynamic on-demand permission handling (`PermissionService`) for Location, Microphone, Notifications, and Bluetooth `[REAL]`
+- [x] Comprehensive Permissions Hub (`PermissionsScreen`) with live status badges (`GRANTED`, `DENIED`, `BLOCKED`, `N/A`) `[REAL]`
+- [x] Clear actionable recovery instructions with direct link to Android App Settings via `openAppSettings()` `[REAL]`
+- [x] Replay walkthrough & Permissions Hub access integrated directly into `SettingsScreen` `[REAL]`
+- [x] Dynamic on-demand permission triggering before journey tracking begins in `JourneyScreen` `[REAL]`
 
 ## 🏠 Phase 3 — Home Dashboard & Quick Access
 - [ ] Header banner & product mission tagline `[PLANNED]`
