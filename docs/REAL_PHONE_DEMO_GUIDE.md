@@ -1,4 +1,4 @@
-# Travel SOS Mesh — Real Physical Android Phone Demo Protocol (SC-03)
+# Travel SOS Mesh — Physical Android Demo & Presentation Guide
 
 **Team:** Maravazha  
 **Members:** Vijaygovind Biju, Noel Paul Tomy  
@@ -7,117 +7,137 @@
 
 ---
 
-## 📱 Hardware Requirements
-1. **Physical Android Phone:** Minimum Android 7.0 (API 24), Android 13/14/15 supported.
-2. **Sensors Required:** 3-Axis Accelerometer, Gyroscope, Microphone, GPS chip, BLE 5.0+.
-3. **Debug APK:** Located at `mobile/build/app/outputs/flutter-apk/app-debug.apk`.
+## 📱 Release Binaries & Installation
+
+The production release binaries are compiled with AOT optimization and split per target CPU architecture:
+
+| Architecture | File Location | File Size | Recommended Target |
+|---|---|---|---|
+| **ARM64 (64-bit)** | `mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` | **19.0 MB** | **All modern Android phones (Recommended)** |
+| **ARMv7 (32-bit)** | `mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk` | **16.5 MB** | Older 32-bit Android phones |
+| **Universal (Fat)** | `mobile/build/app/outputs/flutter-apk/app-release.apk` | **52.0 MB** | Any Android device |
+
+### Installation Command:
+```bash
+# Install to physical phone over USB/Wireless ADB
+adb install -r mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+```
 
 ---
 
-## 🚀 Pre-Demo Installation & Setup
-1. **Transfer APK to Device:**
-   ```bash
-   adb install -r mobile/build/app/outputs/flutter-apk/app-debug.apk
-   ```
-2. **First Launch Walkthrough:**
-   - Launch **Travel SOS Mesh** from the app launcher (`com.maravazha.travel_sos_mesh`).
-   - Swipe through the **4-Pillar Onboarding Walkthrough** explaining:
-     - Late-Night Journey Tracking
-     - Multi-Sensor Anomaly Detection
-     - Offline Distress Ingest
-     - Store-and-Forward Mesh Relay
-   - Complete runtime permissions:
-     - Location (Fine & Coarse GPS)
-     - Microphone (Audio Decibel Monitoring — Zero Raw Audio Saved)
-     - Notifications (High-Priority Alert Channel)
-     - Bluetooth (BLE Extended Advertising & Scanning)
+## 🎯 DEMO A — REAL PHYSICAL DEVICE VALIDATION
+
+> [!NOTE]
+> This demo strictly tests real on-device hardware sensors, local storage persistence, and actual REST backend integration.
+
+### Step 1: Real GPS & Telemetry
+1. Open the app on the physical phone. Complete the 4-step onboarding walkthrough and grant **Location**, **Microphone**, and **Notification** permissions.
+2. Navigate to the **Journey** tab.
+3. Observe the top pill: **`GPS: ±X.Xm [REAL DEVICE LOCATION]`**.
+4. Real latitude, longitude, speed, and heading are dynamically streamed from the phone's physical GNSS chip.
+5. The OpenStreetMap canvas displays the user's location with accuracy radius circle and `© OpenStreetMap contributors` attribution.
+
+### Step 2: Real Accelerometer & Gyroscope
+1. Navigate to the **Safety** tab.
+2. View the **On-Device Hardware Sensors** card:
+   - **Acceleration:** Shows current baseline $\approx 1.0\text{G}$. Shake the phone gently; acceleration jumps to $2.5\text{--}4.5\text{G}$.
+   - **Rotation:** Shows current rotation in $^\circ/\text{s}$. Twist/rotate the phone; angular velocity spikes to $60\text{--}120^\circ/\text{s}$.
+3. Single isolated shocks are damped below 70/100 to prevent false alarms.
+
+### Step 3: Acoustic Anomaly Detection (Zero Raw Audio Saved)
+1. In the **Safety** tab, observe ambient sound level ($\approx 38\text{--}45\,\text{dB}$).
+2. Speak loudly or clap near the phone.
+3. Acoustic classification transitions from `NORMAL` to `ELEVATED` / `ANOMALY`.
+4. **Privacy Guarantee:** No audio bytes are ever written to disk or transmitted over the network.
+
+### Step 4: Safety Challenge (10-Second Modal)
+1. Trigger high risk (e.g. combined shake + loud sound or tap `[ Simulate Dangerous Event ]`).
+2. The **10-Second High Alert Challenge** modal appears with heavy haptic pulsing.
+3. Tap **`[ I'M SAFE ]`** $\to$ Countdown aborts, status returns to Safe, and timeline logs cancellation.
+4. Trigger again and let the 10-second timer expire (or tap **`[ SEND SOS NOW ]`**) $\to$ Distress SOS is created immediately.
+
+### Step 5: Offline Persistence Queue (The Dead-Zone Test)
+1. **Disable Wi-Fi and Mobile Data** on the physical phone (or tap the Network pill in the app).
+2. Status switches to **`OFFLINE`**.
+3. Trigger an SOS via 1.8-second hold on the circular SOS button.
+4. Navigate to the **Incidents** tab:
+   - Status is marked **`QUEUED`**.
+   - Distress packet is safely stored in encrypted flash memory (`SharedPreferences`).
+5. **Force close the application completely** via Android Recent Apps.
+6. Re-open the application.
+7. Navigate to **Incidents**: The pending SOS is still safely preserved.
+
+### Step 6: Network Recovery & Backend Ingest
+1. **Enable Wi-Fi or Mobile Data** on the phone.
+2. The network listener immediately detects `ONLINE` state.
+3. The queue automatically flushes to the cloud REST backend.
+4. Incident status updates from `QUEUED` to `DELIVERED`.
+5. Timeline appends: *"SOS Uploaded via Cellular Recovery"*.
+
+### Step 7: Responder Console Verification
+1. Navigate to the **Responder** tab (shield icon in top bar).
+2. The distress incident appears in the dispatch queue.
+3. The OpenStreetMap tactical canvas displays the incident marker along with nearest emergency vehicles:
+   - **Ambulance 108** (Green)
+   - **Police Patrol Unit #04** (Cyan)
+4. Tap **`[ ACKNOWLEDGE ]`** $\to$ Status transitions to `ACKNOWLEDGED`.
+5. Tap **`[ RESOLVE ]`** $\to$ Incident marks resolved with audit timestamp.
 
 ---
 
-## 🧪 Real-Device Demonstration Scenarios
+## 🌐 DEMO B — INNOVATION DEMO (STORE-AND-FORWARD MESH)
 
-### Scenario 1: Physical Sensor Telemetry Verification (`[REAL]`)
-1. Navigate to the **Safety** tab (shield icon in bottom navigation).
-2. Note the **On-Device Hardware Sensors** card:
-   - **Acceleration (G):** Shows real-time linear $G$ force (nominal $\approx 1.0\text{G}$).
-   - **Rotation (°/s):** Shows live angular velocity in degrees per second (nominal $0^\circ/\text{s}$).
-   - **Acoustic (dB):** Shows live sound pressure level (nominal $38\text{--}48\,\text{dB}$).
-3. **Physical Actions:**
-   - **Device Shake:** Vigorously shake the phone. Accelerometer G-force jumps to $3.5\text{--}5.2\text{G}$, lighting up the red `Impact Candidate` indicator.
-   - **Device Spin:** Rapidly rotate or tumble the phone in hand. Gyroscope leaps over $80^\circ/\text{s}$, flagging `Rollover Candidate`.
-   - **Loud Sound / Shout:** Speak loudly or clap close to the microphone. Decibel scale rises above $80\,\text{dB}$, shifting status from `NORMAL` to `ANOMALY`.
+> [!IMPORTANT]
+> **Engineering Transparency Notice:**
+> - **31-Byte Compact BLE Advertising Frame:** **REAL PROTOCOL** (Exact binary PDU serialized matching Bluetooth 5.2 extended advertising packet limits).
+> - **Multi-Hop Propagation across multiple phones:** **SIMULATED MULTI-HOP RELAY** (Demonstrates the architectural store-and-forward hopping mechanism via state machine, as physical multi-hop requires a synchronized cluster of 3+ physical radios).
 
----
+### Flow:
+```
+[Traveller Phone A]  (No Internet / Dead Zone)
+        │
+        ▼ (BLE 5.2 Extended Advertising - 31-byte PDU)
+[Relay Phone B]      (Nearby auto-rickshaw / passenger - Hop 1)
+        │
+        ▼ (Store-and-Forward Re-broadcast)
+[Gateway Phone C]    (Approaching mobile tower / 5G - Hop 2)
+        │
+        ▼ (HTTPS REST Ingest)
+[Cloud SOS Backend]  (Node.js on port 3000)
+        │
+        ▼ (Dispatch Queue & Real-time Stream)
+[Responder Console]  (Kochi Emergency Dispatch Desk #04)
+```
 
-### Scenario 2: False-Alarm Protection Challenge (`[REAL]`)
-1. From the **Safety** screen, tap `[ SIMULATE DANGEROUS EVENT (DEMO) ]` (or shake phone while speaking loudly).
-2. The **High Alert Safety Challenge Modal** immediately engages:
-   - Heavy vibration alert pulses (`HapticFeedback.heavyImpact`).
-   - Red emergency border pulses.
-   - 10-second countdown dial begins ticking down with auditory ticks.
-   - Shows detected causes (e.g. `Sudden deceleration (4.8G) + Acoustic Spike (84 dB)`).
-3. **Test False-Positive Dismissal:**
-   - Tap **`[ I'M SAFE ]`**.
-   - Modal dismisses immediately.
-   - Danger countdown cancels.
-   - Incident timeline in **Incidents** tab logs:  
-     `"User Confirmed Safe — Traveller tapped I'M SAFE. SOS dispatch successfully aborted."`
-   - Peak risk scores reset to nominal baseline.
-
----
-
-### Scenario 3: Zero-Reception Dead-Zone & Store-and-Forward Relay (`[REAL / SIMULATED]`)
-1. Start an active journey on the **Journey** tab toward `MG Road Metro Station, Kochi`.
-2. Tap the **Network Pill** in the top header (or turn on Airplane Mode on the phone).
-   - Header switches from `ONLINE` to `OFFLINE (Dead Zone - Mesh Mode Active)`.
-3. Trigger an SOS either by holding the radial button for 1.5s or letting the 10s challenge expire.
-4. **Inspect Offline Storage Queue:**
-   - Open the **Incidents** tab.
-   - Notice the **1 QUEUED** offline beacon badge.
-   - The distress beacon is securely preserved in flash memory with encrypted AES-GCM-256 payload and Ed25519 signature.
-5. **Inspect 31-Byte BLE Distress Beacon:**
-   - Open the **Safety** tab.
-   - Scroll to **BLE 5.2 BEACON (31-BYTE PDU)**.
-   - Inspect the real byte stream (UUID `0xFEE4`, compressed GPS coordinates, battery level, risk score, and CRC checksum).
-6. **Step Through Mesh Relay Visualizer:**
-   - Tap the **Hub** icon in the top app bar.
-   - Tap **`[ STEP NEXT HOP ]`**:
-     - Hop 1: Relayed to **Phone B** in auto-rickshaw via BLE 5.2 Extended Advertising.
-     - Hop 2: Relayed to **Gateway Phone C** with 5G Internet.
-     - Hop 3: Gateway Phone C uploads to **Cloud SOS Backend**.
-     - Hop 4: Backend notifies **Response Center Console #04**.
+### Steps to Present Demo B:
+1. Tap the **Mesh Hub** icon in the top header.
+2. View the **Mesh Visualizer**:
+   - Shows Node A (Traveller), Node B (Relay), and Node C (Gateway).
+   - Displays RSSI signal strength and hop indicators.
+3. Tap **`[ STEP NEXT HOP ]`**:
+   - **Hop 0 $\to$ Hop 1:** Distress beacon leaves Phone A over simulated BLE 5.2. Received by Relay Phone B.
+   - **Hop 1 $\to$ Hop 2:** Stored and forwarded to Gateway Phone C.
+   - **Hop 2 $\to$ Hop 3:** Gateway Phone C detects cellular reception and relays packet to `/api/mesh/relay`.
+4. Inspect the **31-Byte BLE Frame Hex Dump** in the Safety screen:
+   - Shows service UUID `0xFEE4`.
+   - Compressed fixed-point lat/long.
+   - Battery level, risk score, and CRC24 integrity checksum.
 
 ---
 
-### Scenario 4: Cellular Recovery Auto-Flush & Responder Command (`[REAL]`)
-1. Tap the **Network Pill** again to simulate cellular network recovery (or disable Airplane Mode).
-2. Watch the **Incidents** screen:
-   - The offline pending queue automatically flushes to the cloud backend.
-   - SOS status transitions from `QUEUED` to `DELIVERED`.
-   - Immutable audit timeline logs:  
-     `"SOS Uploaded via Cellular Recovery — Internet restored. Offline pending SOS successfully transmitted."`
-3. Open the **Responder Console** (top shield icon):
-   - Review live incident with GPS coordinates on the tactical OpenStreetMap canvas.
-   - Notice Kochi Police Unit #04 and Ambulance 108 plotted on map relative to distress location.
-   - Tap **`[ ACKNOWLEDGE ]`**: logs dispatcher name and timestamps.
-   - Review the generated **Emergency SMS** with live tracking URL.
-   - Tap **`[ COPY SMS ]`** to verify clipboard payload.
-   - Tap **`[ RESOLVE ]`**: closes incident and returns journey to complete state.
+## ⚡ Hands-Off 50-Second Automated Presentation
 
----
-
-### Scenario 5: Automated 50-Second Evaluation Script (`[REAL / SIMULATED]`)
-For rapid judging and demonstrations without manual clicking:
-1. On the **Home** dashboard, tap **`[ RUN DEMO ]`**.
-2. Hands-off automated 50-second presentation begins:
-   - 00s: Journey starts.
-   - 05s: Cellular dead-zone entered.
-   - 10s: Anomaly detected.
-   - 15s: Risk reaches 95/100 HIGH, challenge active.
-   - 28s: Timeout, SOS queued offline.
-   - 32s: Mesh Hop 1 (Phone B).
-   - 36s: Mesh Hop 2 (Gateway Phone C).
-   - 40s: Cloud backend ingest.
-   - 45s: Responder console alert.
-   - 50s: Incident acknowledged by dispatch desk.
-3. Tap **`[ RESET ]`** in Settings anytime to return all state to a clean slate.
+For a rapid, fully synchronized demonstration during judging:
+1. Go to **Settings** $\to$ tap **`[ Launch 50s Demo Sequence ]`** (or tap **`[ RUN DEMO ]`** on the Home screen).
+2. The entire narrative executes automatically in 50 seconds:
+   - *00s:* Journey starts
+   - *05s:* Cellular dead-zone simulation begins
+   - *10s:* Physical sensor anomaly detected
+   - *15s:* Risk score escalates to 95/100, Safety Challenge engages
+   - *28s:* Timeout triggers offline SOS
+   - *32s:* Mesh hop 1 to Relay Phone B
+   - *36s:* Mesh hop 2 to Gateway Phone C
+   - *40s:* Cloud backend ingest
+   - *45s:* Emergency dispatch desk alert
+   - *50s:* Dispatcher acknowledges and vectors response units
+3. Tap **`[ RESET APP STATE ]`** anytime in Settings to return the system to default.
