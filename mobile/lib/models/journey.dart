@@ -7,6 +7,7 @@ class LocationPoint {
   final String landmark;
   final double speedKmh;
   final double heading;
+  final double altitude;
   final DateTime timestamp;
 
   LocationPoint({
@@ -16,6 +17,7 @@ class LocationPoint {
     required this.landmark,
     this.speedKmh = 0.0,
     this.heading = 0.0,
+    this.altitude = 0.0,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -27,6 +29,7 @@ class LocationPoint {
       'landmark': landmark,
       'speedKmh': speedKmh,
       'heading': heading,
+      'altitude': altitude,
       'timestamp': timestamp.toIso8601String(),
     };
   }
@@ -39,6 +42,7 @@ class LocationPoint {
       landmark: map['landmark'] ?? '',
       speedKmh: ((map['speedKmh'] ?? 0) as num).toDouble(),
       heading: ((map['heading'] ?? 0) as num).toDouble(),
+      altitude: ((map['altitude'] ?? 0) as num).toDouble(),
       timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
     );
   }

@@ -81,10 +81,12 @@
 - [x] Graceful offline canvas fallback preserving polyline, markers, and distance readouts when disconnected `[REAL]`
 
 ## 🛰️ Phase 6 — Real Location Tracking System
-- [ ] Real device GPS geolocator integration (`geolocator`) `[REAL]`
-- [ ] Latitude, Longitude, Altitude, Accuracy, Timestamp, Speed `[REAL]`
-- [ ] Adaptive sampling rate (Battery-saving in transit, High-frequency in SOS) `[REAL]`
-- [ ] Location failure and timeout guards `[REAL]`
+- [x] Android GPS geolocator integration via `geolocator` with fine/coarse permission checks `[REAL]`
+- [x] Full telemetry capture: Latitude, Longitude, Altitude, Accuracy (±X m), Speed (km/h), Heading (°), and Timestamp `[REAL]`
+- [x] Adaptive location sampling: battery-saving filter (10m / high accuracy) in transit, high-frequency (2m / best accuracy) in active emergency `[REAL]`
+- [x] GPS signal states: `searching`, `locked`, `lost`, `permissionDenied`, `serviceDisabled` `[REAL]`
+- [x] Location failure guards with graceful fallback to last-known coordinates `[REAL]`
+- [x] Clear UI designation: "REAL DEVICE LOCATION" when live GPS is active `[REAL]`
 
 ## 📳 Phase 7 — Real Accelerometer & Impact Detection
 - [ ] 3-axis accelerometer stream (`sensors_plus`) `[REAL]`

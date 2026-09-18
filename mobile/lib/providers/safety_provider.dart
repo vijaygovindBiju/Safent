@@ -185,6 +185,7 @@ class SafetyProvider extends ChangeNotifier {
 
     _isDangerActive = true;
     _dangerCountdown = 10;
+    location.setEmergencyMode(true);
 
     if (_activeJourney != null) {
       _activeJourney!.status = 'DANGER_SUSPECTED';
@@ -252,6 +253,7 @@ class SafetyProvider extends ChangeNotifier {
     _countdownTimer?.cancel();
     _isDangerActive = false;
     _dangerCountdown = 10;
+    location.setEmergencyMode(false);
 
     if (_activeJourney != null) {
       _activeJourney!.status = 'ACTIVE';
