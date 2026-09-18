@@ -222,6 +222,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     'Self-Expiring Ephemeral Mesh Packets',
                     'All broadcasted packets enforce strict 300-second TTL limits with hop-count boundaries to prevent relay tracking.',
                   ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            backgroundColor: AppColors.surfaceElevated,
+                            title: const Row(
+                              children: [
+                                Icon(Icons.shield_rounded, color: AppColors.safe),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Ethical Data Charter',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            content: const SingleChildScrollView(
+                              child: Text(
+                                'Travel SOS Mesh is engineered around zero-knowledge privacy principles:\n\n'
+                                '1. No Audio Surveillance: Microphone input is evaluated solely in memory for transient RMS volume. Raw audio is never recorded, buffered, or transmitted.\n\n'
+                                '2. Need-to-Know Geolocation: Coordinates remain on-device until danger is confirmed.\n\n'
+                                '3. Zero-Knowledge Mesh: Intermediary relay devices route sealed ciphertext envelopes (AES-GCM-256) without accessing traveller identity or location.\n\n'
+                                '4. Ephemeral TTL: All mesh packets self-terminate within 300 seconds.\n\n'
+                                '5. User Sovereignty: Travellers can abort false alarms in 1 click.',
+                                style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('DISMISS', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.menu_book, color: AppColors.safe, size: 16),
+                      label: const Text(
+                        'VIEW ETHICAL DATA GOVERNANCE CHARTER',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.safe),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.safe),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

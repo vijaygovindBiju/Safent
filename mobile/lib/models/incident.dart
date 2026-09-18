@@ -9,6 +9,7 @@ class IncidentEvent {
   final DateTime timestamp;
   final String category; // 'DETECTION', 'SAFETY_CHECK', 'SOS', 'MESH', 'GATEWAY', 'RESPONDER'
   final String severity; // 'INFO', 'WARNING', 'CRITICAL', 'SUCCESS'
+  final String? eventHash;
 
   IncidentEvent({
     required this.id,
@@ -17,6 +18,7 @@ class IncidentEvent {
     DateTime? timestamp,
     required this.category,
     this.severity = 'INFO',
+    this.eventHash,
   }) : timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toMap() {
@@ -27,6 +29,7 @@ class IncidentEvent {
       'timestamp': timestamp.toIso8601String(),
       'category': category,
       'severity': severity,
+      'eventHash': eventHash,
     };
   }
 
@@ -38,6 +41,7 @@ class IncidentEvent {
       timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
       category: map['category'] ?? 'DETECTION',
       severity: map['severity'] ?? 'INFO',
+      eventHash: map['eventHash'],
     );
   }
 }

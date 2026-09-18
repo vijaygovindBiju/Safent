@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/safety_provider.dart';
 import '../models/incident.dart';
@@ -239,6 +241,104 @@ class ResponderScreen extends StatelessWidget {
           if (inc.responderNotes != null)
             _buildInfoRow('Dispatch Notes', inc.responderNotes!),
 
+          const SizedBox(height: 14),
+
+          // Tactical Map Preview with Incident Marker & Emergency Units (Phase 30)
+          const Text(
+            'Incident Vector & Tactical Dispatch Map',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.surfaceBorder),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: LatLng(inc.location.latitude, inc.location.longitude),
+                initialZoom: 15.0,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.maravazha.travel_sos_mesh',
+                ),
+                CircleLayer(
+                  circles: [
+                    CircleMarker(
+                      point: LatLng(inc.location.latitude, inc.location.longitude),
+                      radius: (inc.location.accuracy).clamp(15.0, 50.0),
+                      useRadiusInMeter: false,
+                      color: AppColors.emergency.withValues(alpha: 0.2),
+                      borderColor: AppColors.emergency,
+                      borderStrokeWidth: 2,
+                    ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: [
+                    // Incident Marker
+                    Marker(
+                      point: LatLng(inc.location.latitude, inc.location.longitude),
+                      width: 40,
+                      height: 40,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.emergency,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black45, blurRadius: 6),
+                          ],
+                        ),
+                        child: const Icon(Icons.warning, color: Colors.white, size: 20),
+                      ),
+                    ),
+                    // Ambulance 108 Vector
+                    Marker(
+                      point: LatLng(inc.location.latitude + 0.003, inc.location.longitude + 0.002),
+                      width: 32,
+                      height: 32,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.safe,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: const Icon(Icons.local_hospital, color: Colors.white, size: 16),
+                      ),
+                    ),
+                    // Police Patrol #04 Vector
+                    Marker(
+                      point: LatLng(inc.location.latitude - 0.002, inc.location.longitude - 0.003),
+                      width: 32,
+                      height: 32,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.cyanAccent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: const Icon(Icons.local_police, color: Colors.black, size: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Red: Distress Location • Green: Ambulance 108 • Cyan: Police #04',
+            style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+          ),
           const SizedBox(height: 14),
 
           // Audit Timeline

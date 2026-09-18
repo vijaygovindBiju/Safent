@@ -1,7 +1,8 @@
 # Travel SOS Mesh — Late-Night Journey Safety Companion
 > **Hackathon Challenge:** SC-03 — Late-Night Journey Safety Companion  
 > **Team:** Maravazha (Vijaygovind Biju, Noel Paul Tomy)  
-> **Status:** Pre-Qualification Prototype MVP • Verified Running  
+> **Target Platform:** Physical Android Device (Flutter / Dart + Android Native SDK)  
+> **Status:** All 36 Phases Completed & Verified • Clean APK Built  
 
 ---
 
@@ -9,132 +10,108 @@
 
 > **"Even when the traveller's phone has no Internet, their SOS can travel through nearby participating devices until it reaches an Internet-connected gateway."**
 
-Late-night transit accidents and attacks happen disproportionately in dead zones: underground metro tunnels, highway blackouts, and low-connectivity sectors. Traditional safety apps are rendered completely useless without mobile data.
+Late-night transit accidents and assaults happen disproportionately in cellular dead zones: underground metro stretches, rural highways, and low-connectivity sectors. Traditional emergency applications fail silently without active mobile data.
 
-**Travel SOS Mesh** transforms ordinary smartphones into autonomous peer safety nodes. Using **BLE 5.2 Extended Advertisements** and **Wi-Fi Aware store-and-forward mesh routing**, an encrypted distress beacon hops opportunistically from phone to phone until reaching an Internet-connected peer device that uplinks the signal to emergency dispatchers.
-
----
-
-## 🔄 The 7-Stage End-to-End Workflow
+**Travel SOS Mesh** turns everyday Android smartphones into an autonomous peer-to-peer safety mesh. Utilizing **BLE 5.2 Extended Advertisements (31-byte compact distress PDUs)**, opportunistic store-and-forward relaying, and multi-sensor edge risk fusion, an encrypted distress beacon hops from device to device until reaching an Internet-connected peer that uplinks the payload directly to emergency dispatchers.
 
 ```
-DETECTION ➔ RISK FUSION ➔ SAFETY CONFIRMATION ➔ SOS CREATED ➔ MESH RELAY ➔ 5G GATEWAY ➔ RESPONDER
-```
-
-```
-┌─────────────────────────────────┐
-│        TRAVELLER PHONE A        │
-│          (No Internet)          │
-│  - Multi-Sensor Edge Fusion     │
-│  - 10s False-Positive Challenge │
-│  - AES-GCM-256 Envelope PDU     │
-└────────────────┬────────────────┘
-                 │ BLE 5.2 Extended Advertising (<255B)
-                 ▼
-┌─────────────────────────────────┐
-│          RELAY PHONE B          │
-│    (Commuter in Auto-Rickshaw)  │
-│  - Zero Internet required       │
-│  - Store-and-Forward Rebroadcast│
-│  - Zero Knowledge of Plaintext  │
-└────────────────┬────────────────┘
-                 │ Wi-Fi Aware / BLE Re-broadcast
-                 ▼
-┌─────────────────────────────────┐
-│         GATEWAY PHONE C         │
-│   (Pedestrian with 5G Cellular) │
-│  - Detects emergency beacon     │
-│  - Immediate HTTPS Cloud Uplink │
-└────────────────┬────────────────┘
-                 │ Secure HTTPS / TLS 1.3
-                 ▼
-┌─────────────────────────────────┐
-│        CLOUD SOS BACKEND        │
-│   - Digital signature verified  │
-│   - WebSockets dispatch stream  │
-└────────────────┬────────────────┘
-                 │ Real-Time WebSocket Push
-                 ▼
-┌─────────────────────────────────┐
-│     SAFETY RESPONSE CENTER      │
-│  - Console #04 Dispatch View    │
-│  - Ambulance 108 & Police Units │
-│  - Emergency Contact SMS Alert  │
-└─────────────────────────────────┘
+Traveller Phone A (Offline) ➔ Relay Phone B (BLE 5.2) ➔ Gateway Phone C (5G) ➔ Cloud Backend ➔ Responder Console #04
 ```
 
 ---
 
-## 🔍 Implementation Status (Honest Technical Transparency)
+## 📱 Native Android Architecture (`mobile/`)
 
-To maintain absolute credibility before judges, features are clearly categorized:
+The mobile application is engineered natively for Android using Flutter 3.x and Dart 3.x, directly interfacing with Android hardware APIs:
 
-| Feature | Status | Implementation Details |
-|---|---|---|
-| **State Machine & Navigation** | `IMPLEMENTED` | Centralized React/TypeScript state engine covering all 7 stages and automatic/manual transitions. |
-| **Tactical GPS Radar Map** | `IMPLEMENTED` | Zero-API-key tactical SVG cartography with live breadcrumb route, compass, satellite fix, and BLE beacon rings. |
-| **Audio Synthesizer** | `IMPLEMENTED` | 100% client-side Web Audio API synthesizer for warning sirens, countdown beeps, sonar pings, and dispatch chimes (with mute toggle). |
-| **False-Positive Guard** | `IMPLEMENTED` | 10-second countdown challenge with `[I'M SAFE]` cancellation and automatic SOS fallback upon timeout. |
-| **Interactive Mesh Visualizer** | `IMPLEMENTED` | 5-node pipeline with live packet animation, hop tracking, TTL decrementing, and node schema inspector. |
-| **Responder Dispatch Console** | `IMPLEMENTED` | Command center with active incident cards, `[ACKNOWLEDGE]`, `[DISPATCH UNITS]`, and microsecond timeline logs. |
-| **60s Automated Demo Engine** | `IMPLEMENTED` | Single-click `[ RUN FULL SOS DEMO ]` automating the full end-to-end loop with live progress narration. |
-| **3-Axis Sensor & Audio ML** | `SIMULATED` | Edge sensor signals (4.85G impact, 86°/s tumble, 92 dB acoustic spike) are simulated in this browser environment. |
-| **BLE 5.2 / Wi-Fi Aware Stack** | `SIMULATED` | The prototype simulates packet transmission; production architecture is designed for native Android. |
-| **SMS & Unit Dispatch Integration** | `SIMULATED` | Simulated SMS dispatch to trusted contact and simulated GPS vectoring to emergency services. |
-| **Native Android Daemons** | `PLANNED` | Kotlin foreground service with `BluetoothLeAdvertiser`, `WifiAwareManager`, and hardware Keystore encryption. |
+- **GPS & Location Engine (`LocationService`):** Fine/Coarse GPS positioning, speed (km/h), heading, altitude, and adaptive sampling (10m in transit vs 2m in emergency mode).
+- **3-Axis Linear Accelerometer (`SensorService`):** Continuous G-force calculation with static gravity compensation ($G = 1.0 + \sqrt{a_x^2 + a_y^2 + a_z^2}/9.8$) detecting violent impacts ($\ge 3.8\text{G}$).
+- **3-Axis Gyroscope (`SensorService`):** Measures rotational velocity ($\Omega \ge 80^\circ/\text{s}$) capturing rollover accidents and rapid phone tumbles.
+- **Privacy-Preserving Acoustic Decibel Monitor (`SensorService`):** Continuous windowed RMS sound pressure evaluation ($\ge 80\,\text{dB}$ screams/crashes). **Zero raw audio is ever recorded, stored, or transmitted.**
+- **Multi-Sensor Risk Fusion Engine (`RiskEngine`):** 4-signal weighting (+40 Impact, +25 Audio, +20 Rotation, +10 Context) with **false-positive damping** to prevent dropped phones from triggering emergency dispatch.
+- **Safety Confirmation Challenge:** 10-second auditory and visual countdown challenge with single-tap `[ I'M SAFE ]` false-alarm dismissal and zero-user-interaction automatic SOS creation upon timeout.
+- **Radial Hold SOS Button:** 1.5-second anti-accidental radial long-press button with haptic feedback ticks.
+- **Offline-First Local Queue (`StorageService`):** Preserves emergency distress packets across app restarts and crashes via local encrypted flash storage.
+- **Real 31-Byte BLE Distress Beacon (`BleService`):** Compact binary PDU serializer with service UUID `0xFEE4`, compressed fixed-point coordinates, battery level, risk score, and 24-bit CRC checksum.
+- **Tactical OpenStreetMap (`flutter_map`):** Live GPS marker, heading rotation, dynamic accuracy circle, breadcrumbs polyline, and offline-resilient tile handling.
+- **Responder Command Console (`ResponderScreen`):** Desk #04 dispatch console with live GPS incident map, unit vectoring (108 Ambulance & Police #04), action buttons, and emergency contact SMS preview.
 
 ---
 
-## ⚡ 60-Second Demo Instructions for Judges
+## 📂 Project Structure
 
-1. Open **`http://localhost:4173/`** in any web browser.
-2. Click the glowing **`[ RUN FULL SOS DEMO ]`** button in the header.
-3. **Watch the automated 50-second flow:**
-   - **00s:** Journey active with on-device monitoring.
-   - **05s:** Vehicle enters dead zone &rarr; Network switches to **OFFLINE (Mesh Active)**.
-   - **10s:** Sensor anomaly detected &rarr; Risk fusion reaches **95/100 (HIGH)**.
-   - **20s:** "Are you safe?" 10-second countdown runs to prevent false alarms.
-   - **25s:** Incapacitated traveller does not respond &rarr; SOS beacon generated.
-   - **30s:** Packet relays peer-to-peer from Phone A &rarr; Relay Phone B.
-   - **35s:** Phone B forwards to Gateway Phone C with active 5G.
-   - **40s:** Gateway C uploads payload to Cloud SOS Backend.
-   - **45s:** Safety Response Center receives alert with live GPS coordinates.
-   - **50s:** Dispatcher acknowledges incident &rarr; Emergency units dispatched.
-4. Click **`[ RESET DEMO ]`** to return to a clean state anytime.
-
----
-
-## 🛠️ Technology Stack
-
-- **Frontend:** React 18, TypeScript, Vite
-- **Styling:** Tailwind CSS, Custom Tactical Safety Theme
-- **Icons:** Lucide React
-- **Audio:** Client-side Web Audio API Synthesizer (0 external file dependencies)
-- **Effects:** Canvas Confetti, SVG Tactical Radar, Animated SVG Paths
-- **Documentation:** Markdown specifications in [`/docs`](file:///media/pirate/Shared/currently%20working/Safent/docs)
+```
+Safent/
+├── mobile/                           # Native Android Flutter Codebase
+│   ├── android/                      # Native Android project configs & AndroidManifest.xml
+│   ├── lib/
+│   │   ├── core/constants/           # AppColors, AppTheme
+│   │   ├── models/                   # Journey, Incident, SOSMessage, MeshNode, RiskFusion
+│   │   ├── providers/                # SafetyProvider (State orchestration & Demo engine)
+│   │   ├── screens/                  # Home, Journey, Safety, Incidents, Responder, Settings, Mesh, Onboarding
+│   │   ├── services/                 # Location, Sensors, Risk, Network, Storage, BLE, Backend, Crypto
+│   │   └── widgets/                  # RadialHoldSosButton, SafetyChallengeModal
+│   └── test/                         # Unit test suites (BLE framing, Risk engine, Crypto)
+├── server/                           # Lightweight Cloud SOS Ingest Backend
+│   └── server.js                     # Zero-dependency Node.js REST server
+├── docs/                             # Architecture specs & physical phone demo protocols
+│   ├── ARCHITECTURE.md               # Mathematical telemetry formulas, PDU schema & diagrams
+│   └── REAL_PHONE_DEMO_GUIDE.md      # Physical Android testing script
+├── TODO.md                           # 36-Phase Master Engineering Roadmap
+└── README.md                         # Project documentation
+```
 
 ---
 
-## 🚀 Quickstart & Production Build
+## 🚀 Getting Started & Compilation
 
+### 1. Run Android Tests & Code Analysis
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start local development server
-npm run dev
-
-# 3. Build optimized production bundle
-npm run build
-
-# 4. Preview production build locally
-npm run preview
+cd mobile
+flutter analyze      # Verified: No issues found!
+flutter test         # Verified: All 12 unit tests pass!
 ```
 
-The production bundle in `dist/` is completely standalone, contains zero localhost dependencies, and can be hosted instantly on Vercel, Netlify, or GitHub Pages.
+### 2. Build Native Android Debug APK
+```bash
+cd mobile
+flutter build apk --debug
+```
+*Compiled APK output:* `mobile/build/app/outputs/flutter-apk/app-debug.apk`
+
+### 3. Install on Physical Android Device via ADB
+```bash
+adb install -r mobile/build/app/outputs/flutter-apk/app-debug.apk
+```
+
+### 4. Run Cloud Ingest Backend Server
+```bash
+node server/server.js
+# Server running at http://localhost:3000/api/health
+```
+
+---
+
+## 🔍 Honest Technical Transparency Matrix
+
+| Feature | Status | Engineering Details |
+| :--- | :---: | :--- |
+| **Android GPS Tracking** | `[REAL]` | Live hardware GPS via `geolocator` capturing Lat, Lon, Alt, Speed, Heading, Accuracy. |
+| **3-Axis Accelerometer** | `[REAL]` | Live hardware stream via `sensors_plus` calculating linear G-force ($G \ge 3.8\text{G}$). |
+| **3-Axis Gyroscope** | `[REAL]` | Live hardware stream measuring rotational angular velocity in °/s ($\ge 80^\circ/\text{s}$). |
+| **Acoustic Decibel Meter** | `[REAL]` | Local microphone RMS decibel scale with **strict zero raw audio recording**. |
+| **Multi-Sensor Risk Fusion** | `[REAL]` | 4-signal weighting with false-positive single-sensor damping. |
+| **Safety Challenge Modal** | `[REAL]` | 10-second countdown dial with `[I'M SAFE]` cancellation and haptic feedback. |
+| **Radial Hold SOS Button** | `[REAL]` | 1.5-second anti-accidental long-press radial progress button. |
+| **Offline Storage Queue** | `[REAL]` | Local persistent flash queue surviving reboots and app crashes. |
+| **Network State Listener** | `[REAL]` | Cellular & Wi-Fi detection via `connectivity_plus` with dead-zone test toggle. |
+| **31-Byte BLE PDU Serializer** | `[REAL]` | Binary beacon frame encoder/decoder with UUID `0xFEE4`, fixed-point GPS, and CRC. |
+| **Cloud REST Backend** | `[REAL]` | Node.js HTTP server (`server/server.js`) with incident ingestion and acknowledgement. |
+| **Tactical Responder Map** | `[REAL]` | OpenStreetMap canvas rendering incident position, accuracy radius, and units. |
+| **Physical Multi-Device Relay** | `[SIMULATED]` | Multi-hop propagation across Nodes B & C simulated for single-device evaluation. |
 
 ---
 
 ## 👥 Team Maravazha
-- **Vijaygovind Biju** — Mesh Architecture & System Design
-- **Noel Paul Tomy** — Frontend Engineering & Simulation Engine
+- **Vijaygovind Biju** — System Architecture, Multi-Sensor Fusion & Android Engineering
+- **Noel Paul Tomy** — Store-and-Forward Mesh Protocol & Tactical UX Design

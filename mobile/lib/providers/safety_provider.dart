@@ -15,6 +15,7 @@ import '../services/risk_engine.dart';
 import '../services/mesh_service.dart';
 import '../services/ble_service.dart';
 import '../services/backend_service.dart';
+import '../services/crypto_service.dart';
 import 'package:flutter/services.dart';
 
 class SafetyProvider extends ChangeNotifier {
@@ -26,6 +27,7 @@ class SafetyProvider extends ChangeNotifier {
   final MeshService mesh = MeshService();
   final BleService ble = BleService();
   final BackendService backend = BackendService();
+  final CryptoService crypto = CryptoService();
   final Battery _battery = Battery();
   final Uuid _uuid = const Uuid();
 
@@ -380,17 +382,33 @@ class SafetyProvider extends ChangeNotifier {
       ),
     );
 
-    // Create SOS packet
+    // Phase 27: Seal cleartext telemetry into AES-GCM-256 envelope & sign with Ed25519
+    final envelope = crypto.sealPayload({
+      'incidentId': incId,
+      'journeyId': _activeJourney?.id ?? 'JNY-MANUAL',
+      'originDeviceId': crypto.deviceId,
+      'timestamp': DateTime.now().toIso8601String(),
+      'latitude': location.currentLocation.latitude,
+      'longitude': location.currentLocation.longitude,
+      'accuracy': location.currentLocation.accuracy,
+      'battery': _batteryLevel,
+      'peakG': sensors.peakAccelG,
+      'peakGyro': sensors.peakGyroDps,
+      'soundDb': sensors.soundDb,
+    });
+    final signature = crypto.signMessage(msgId, envelope.tagHex);
+
+    // Create SOS packet with cryptographic envelope
     final sosMessage = SOSMessage(
       messageId: msgId,
       incidentId: incId,
-      originDeviceId: 'ANDROID_PHONE_A',
+      originDeviceId: crypto.deviceId,
       currentNodeId: 'NODE_A',
       hopCount: 0,
       ttl: 300,
       status: network.isOnline ? 'UPLOADING' : 'QUEUED',
-      encryptedPayload: 'AES-GCM-256:8f4c2b9a70e3d11b... [Encrypted GPS & Telemetry]',
-      signature: 'ED25519-SIG:9b20e184... [Device A]',
+      encryptedPayload: envelope.fullString,
+      signature: signature,
       routeHistory: [
         RouteHop(
           nodeId: 'NODE_A',
