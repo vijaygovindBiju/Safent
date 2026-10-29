@@ -7,7 +7,7 @@
 [![Build Status](https://img.shields.io/badge/Build-Passing%20(Code%200)-brightgreen.svg)](https://github.com)
 [![Unit Tests](https://img.shields.io/badge/Tests-12%2F12%20Passing-success.svg)](https://github.com)
 [![Code Analysis](https://img.shields.io/badge/Flutter%20Analyze-0%20Issues-brightgreen.svg)](https://github.com)
-[![APK Size](https://img.shields.io/badge/Release%20APK-19.0%20MB%20(ARM64)-orange.svg)](file:///media/pirate/Shared/currently%20working/Safent/apk/travel-sos-mesh-arm64-v8a-release.apk)
+[![APK Size](https://img.shields.io/badge/Release%20APK-19.0%20MB%20(ARM64)-orange.svg)](apk/travel-sos-mesh-arm64-v8a-release.apk)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 > **Team:** Maravazha  
@@ -198,7 +198,7 @@ Standard Bluetooth Low Energy legacy and extended advertisement packets limit br
 | `0x1C - 0x1E` | **CRC Checksum** | `uint24` | 24-bit cyclic redundancy check for RF data integrity |
 
 ### Offline Flash Storage & Survivor Guarantee
-- When the phone enters an offline dead zone, distress packets are committed directly to device flash storage via [`StorageService`](file:///media/pirate/Shared/currently%20working/Safent/mobile/lib/services/storage_service.dart) (`SharedPreferences` with JSON serialization).
+- When the phone enters an offline dead zone, distress packets are committed directly to device flash storage via [`StorageService`](mobile/lib/services/storage_service.dart) (`SharedPreferences` with JSON serialization).
 - **Survivor Test Passed:** If the device loses power, runs out of memory, or the process is killed (`adb shell am force-stop`), pending emergency packets are reloaded intact on the next cold start.
 - **Network Recovery Auto-Flush:** The app registers an Android `connectivity_plus` broadcast listener. The moment mobile data or Wi-Fi is restored, the pending queue is automatically drained and uploaded to the cloud backend.
 
@@ -228,10 +228,10 @@ To optimize download speeds and device performance, production builds use **spli
 
 | Binary File | Target Architecture | File Size | Reduction vs Debug | Direct File Path |
 |---|---|---|---|---|
-| **`travel-sos-mesh-arm64-v8a-release.apk`** | **Modern 64-bit Android Phones (Primary)** | **19.0 MB** | **-88.3%** | [`apk/travel-sos-mesh-arm64-v8a-release.apk`](file:///media/pirate/Shared/currently%20working/Safent/apk/travel-sos-mesh-arm64-v8a-release.apk) |
-| **`app-arm64-v8a-release.apk`** | 64-bit ARM (`arm64-v8a`) | 19.0 MB | -88.3% | [`mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`](file:///media/pirate/Shared/currently%20working/Safent/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk) |
-| **`app-armeabi-v7a-release.apk`** | 32-bit Legacy ARM (`armeabi-v7a`) | 16.5 MB | -89.9% | [`mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk`](file:///media/pirate/Shared/currently%20working/Safent/mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk) |
-| **`app-x86_64-release.apk`** | 64-bit Android Emulators (`x86_64`) | 20.5 MB | -87.4% | [`mobile/build/app/outputs/flutter-apk/app-x86_64-release.apk`](file:///media/pirate/Shared/currently%20working/Safent/mobile/build/app/outputs/flutter-apk/app-x86_64-release.apk) |
+| **`travel-sos-mesh-arm64-v8a-release.apk`** | **Modern 64-bit Android Phones (Primary)** | **19.0 MB** | **-88.3%** | [`apk/travel-sos-mesh-arm64-v8a-release.apk`](apk/travel-sos-mesh-arm64-v8a-release.apk) |
+| **`app-arm64-v8a-release.apk`** | 64-bit ARM (`arm64-v8a`) | 19.0 MB | -88.3% | `mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` |
+| **`app-armeabi-v7a-release.apk`** | 32-bit Legacy ARM (`armeabi-v7a`) | 16.5 MB | -89.9% | `mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk` |
+| **`app-x86_64-release.apk`** | 64-bit Android Emulators (`x86_64`) | 20.5 MB | -87.4% | `mobile/build/app/outputs/flutter-apk/app-x86_64-release.apk` |
 
 ### Binary Verification & Package Specifications
 - **Package ID:** `com.maravazha.travel_sos_mesh`
